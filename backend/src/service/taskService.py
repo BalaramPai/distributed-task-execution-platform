@@ -1,21 +1,26 @@
 # src/service/taskService.py
 
-from src.schemas.taskSchema import TaskCreateRequest,TaskResponse
-import random as rd
-from datetime import datetime
+from sqlalchemy.orm import Session
 
-def create_task_service(task : TaskCreateRequest):
-    return TaskResponse(
-        id = rd.randint(1000,9999),
-        title = task.title,
+from src.schemas.taskSchema import TaskCreateRequest
+from src.models.taskModel import Task
+from src.dao.taskDao import create_task
+
+
+def create_task_service(
+    db: Session,
+    task: TaskCreateRequest
+):
+
+    task_model = Task(
+        title=task.title,
         description=task.description,
         duration=task.duration,
         location=task.location,
-        dueDate=task.dueDate,
-        status="PENDING",
-        createdAt=datetime.now()
+        due_date=task.dueDate
     )
-    
+
+    return create_task(db,task_model)
     
     
     
