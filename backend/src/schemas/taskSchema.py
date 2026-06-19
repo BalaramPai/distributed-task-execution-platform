@@ -21,4 +21,10 @@ class TaskResponseSchema(BaseModel):
     status : str
     createdAt : datetime
     
+class TaskUpdateRequestScehma(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    duration: int | None = None
+    location: str | None = None
+    dueDate: date | None = None
     

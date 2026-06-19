@@ -29,3 +29,7 @@ def delete_task(db:Session,id:int):
         db.commit()
     
     return task
+
+def update_task(db:Session,task:Task):
+    db.commit()
+    db.refresh(task)

@@ -7,8 +7,9 @@ from src.controllers.taskController import (
     create_task_controller,
     get_all_tasks_controller,
     get_task_controller,
-    delete_task_controller)
-from src.schemas.taskSchema import TaskCreateRequestSchema
+    delete_task_controller,
+    update_task_controller)
+from src.schemas.taskSchema import TaskCreateRequestSchema,TaskUpdateRequestScehma
 from src.database.database import get_db
 
 router = APIRouter()
@@ -41,3 +42,11 @@ def delete_task(
     db:Session = Depends(get_db)
 ):
     return delete_task_controller(db,id)
+
+@router.put("/task/{id}")
+def update_task(
+    id: int,
+    task : TaskUpdateRequestScehma,
+    db : Session = Depends(get_db)
+):
+    return update_task_controller(db,task,id)
