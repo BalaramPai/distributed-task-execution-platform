@@ -2,9 +2,10 @@
 
 from sqlalchemy.orm import Session
 
+from src.utilities.response import error_response
 from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema
 from src.models.taskModel import Task
-from src.dao.taskDao import create_task,get_all_tasks
+from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task
 
 
 def create_task_service(
@@ -55,6 +56,42 @@ def get_all_tasks_service(db:Session):
         )
 
     return response_all_tasks
-        
+
+
+def get_task_service( db:Session, id : int):
+    
+    task = get_task(db,id)
+    
+    if task is None:
+        return None
+    
+    return TaskResponseSchema(
+            id=task.id,
+            title=task.title,
+            description=task.description,
+            duration=task.duration,
+            location=task.location,
+            dueDate=task.due_date,
+            status=task.status,
+            createdAt=task.created_at
+            )
+     
+def delete_task_service(db:Session,id:int):
+    
+    task = delete_task(db,id)
+    
+    if task is None:
+        return None
+    
+    return TaskResponseSchema(
+            id=task.id,
+            title=task.title,
+            description=task.description,
+            duration=task.duration,
+            location=task.location,
+            dueDate=task.due_date,
+            status=task.status,
+            createdAt=task.created_at
+            )
     
     

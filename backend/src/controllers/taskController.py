@@ -2,7 +2,11 @@
 
 from sqlalchemy.orm import Session
 
-from src.service.taskService import create_task_service,get_all_tasks_service
+from src.service.taskService import (
+    create_task_service,
+    get_all_tasks_service,
+    get_task_service,
+    delete_task_service)
 from src.schemas.taskSchema import TaskCreateRequestSchema
 from src.utilities.response import (
     success_response,
@@ -50,5 +54,41 @@ def get_all_tasks_controller(
         return error_response(
             message="All Tasks retrieval failed",
             error=str(e)
+        )
+        
+
+def get_task_controller(db:Session, id : int):
+    try:
+        task_response = get_task_service(db,id)
+        
+        if task_response == None:
+            return error_response(message=f"No such task with ID {id} exists")
+        
+        return success_response(
+            message = f"Task wit ID {id} has been retrieved.",
+            data = task_response 
+        )
+    except Exception as e:
+        return error_response(
+            message = "Failed to retrieve the task.",
+            error = str(e)
+        )
+        
+def delete_task_controller(db:Session,id:int):
+    try:
+        task = delete_task_service(db,id)
+        
+        if task == None:
+            return error_response(message=f"No such task with ID {id} exists to be deleted.")
+        
+        return success_response(
+            message = f"Task with ID {id} has been deleted successfully.",
+            data = task
+        )
+    
+    except Exception as e:
+        return error_response(
+            message = "Failed to delete the task.",
+            error = str(e)
         )
         

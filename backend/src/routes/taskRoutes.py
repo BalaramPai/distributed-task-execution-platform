@@ -3,7 +3,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from src.controllers.taskController import create_task_controller,get_all_tasks_controller
+from src.controllers.taskController import (
+    create_task_controller,
+    get_all_tasks_controller,
+    get_task_controller,
+    delete_task_controller)
 from src.schemas.taskSchema import TaskCreateRequestSchema
 from src.database.database import get_db
 
@@ -23,3 +27,17 @@ def get_all_tasks(
     db : Session = Depends(get_db)
 ):
         return get_all_tasks_controller(db)
+    
+@router.get("/task/{id}")
+def get_task(
+    id : int,
+    db : Session = Depends(get_db)
+):
+    return get_task_controller(db,id)
+
+@router.delete("/task/{id}")
+def delete_task(
+    id: int,
+    db:Session = Depends(get_db)
+):
+    return delete_task_controller(db,id)
