@@ -8,8 +8,12 @@ from src.controllers.taskController import (
     get_all_tasks_controller,
     get_task_controller,
     delete_task_controller,
-    update_task_controller)
-from src.schemas.taskSchema import TaskCreateRequestSchema,TaskUpdateRequestScehma
+    update_task_controller,
+    update_status_controller)
+from src.schemas.taskSchema import (
+    TaskCreateRequestSchema,
+    TaskUpdateRequestScehma,
+    TaskStatusUpdateRequestSchema)
 from src.database.database import get_db
 
 router = APIRouter()
@@ -50,3 +54,11 @@ def update_task(
     db : Session = Depends(get_db)
 ):
     return update_task_controller(db,task,id)
+
+@router.patch("/task/{id}/status")
+def update_status(
+    id :int,
+    task : TaskStatusUpdateRequestSchema,
+    db : Session = Depends(get_db)
+):
+    return update_status_controller(db,task,id)

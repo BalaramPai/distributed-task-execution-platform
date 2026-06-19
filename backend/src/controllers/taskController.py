@@ -7,8 +7,9 @@ from src.service.taskService import (
     get_all_tasks_service,
     get_task_service,
     delete_task_service,
-    update_task_service)
-from src.schemas.taskSchema import TaskCreateRequestSchema,TaskUpdateRequestScehma
+    update_task_service,
+    update_status_service)
+from src.schemas.taskSchema import TaskCreateRequestSchema,TaskUpdateRequestScehma,TaskStatusUpdateRequestSchema
 from src.utilities.response import (
     success_response,
     error_response
@@ -101,12 +102,28 @@ def update_task_controller(db:Session,task:TaskUpdateRequestScehma,id:int):
         if task == None:
             return error_response(message=f"No such task with ID {id} to update.")
         
-        return success_response(message=f"Task with the ID {id} has been updates successfully.",data=task)
+        return success_response(message=f"Task with the ID {id} has been updated successfully.",data=task)
     
     except Exception as e:
         return error_response(
             message = "Failed to update the task.",
             error = str(e)
         )
+
+def update_status_controller(db:Session,task:TaskStatusUpdateRequestSchema,id:int):
+    try:
+        task = update_status_service(db,task,id)
+        
+        if task == None:
+            return error_response(message=f"No such task with ID {id} to update.")
+        
+        return success_response(message=f"Task with the ID {id} has been updateD successfully.",data=task)
+    
+    except Exception as e:
+        return error_response(
+            message = "Failed to update the task.",
+            error = str(e)
+        )
+            
         
         

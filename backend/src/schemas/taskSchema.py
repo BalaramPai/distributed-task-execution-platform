@@ -28,3 +28,6 @@ class TaskUpdateRequestScehma(BaseModel):
     location: str | None = None
     dueDate: date | None = None
     
+class TaskStatusUpdateRequestSchema(BaseModel):
+    status: str
+    
