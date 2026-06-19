@@ -6,6 +6,8 @@ from src.models.taskModel import Task
 def create_task(db:Session,task:Task):
     db.add(task)
     db.commit()
-    db.refresh(task)
+    db.refresh(task)   
     return task
 
+def get_all_tasks(db:Session):
+    return db.query(Task).all()

@@ -3,7 +3,7 @@
 from pydantic import BaseModel
 from datetime import datetime,date
 
-class TaskCreateRequest(BaseModel):
+class TaskCreateRequestSchema(BaseModel):
     title : str
     description : str | None = None
     duration : int
@@ -11,13 +11,13 @@ class TaskCreateRequest(BaseModel):
     dueDate : date
     
     
-class TaskResponse(BaseModel):
+class TaskResponseSchema(BaseModel):
     id : int
     title : str
     description : str | None = None
     duration : int
-    location : str
-    dueDate : date
+    location : str | None = None
+    dueDate : date | None = None
     status : str
     createdAt : datetime
     
