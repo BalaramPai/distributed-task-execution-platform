@@ -29,9 +29,10 @@ def create_task(
 
 @router.get("/tasks")
 def get_all_tasks(
+    status : str | None=None,
     db : Session = Depends(get_db)
 ):
-        return get_all_tasks_controller(db)
+        return get_all_tasks_controller(db,status)
     
 @router.get("/task/{id}")
 def get_task(

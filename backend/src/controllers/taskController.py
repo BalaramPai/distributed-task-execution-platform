@@ -40,16 +40,21 @@ def create_task_controller(
         
 def get_all_tasks_controller(
     db: Session,
+    status : str
 ):
 
     try:
 
-        task_response = get_all_tasks_service(db)
-
+        task_response = get_all_tasks_service(db,status)
+        if status is None:
+            return success_response(
+                message="Tasks fetched successfully",
+                data= {"count":len(task_response),"tasks":task_response}
+            )
         return success_response(
-            message="Tasks fetched successfully",
-            data= {"count":len(task_response),"tasks":task_response}
-        )
+                message=f"{status} Tasks fetched successfully",
+                data= {"count":len(task_response),"tasks":task_response}
+            )
 
     except Exception as e:
 

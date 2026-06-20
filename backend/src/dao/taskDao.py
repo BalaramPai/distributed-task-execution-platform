@@ -11,8 +11,10 @@ def create_task(db:Session,task:Task):
     return task
 
 # To retrieve all the tasks in the database.
-def get_all_tasks(db:Session):
-    return db.query(Task).all()
+def get_all_tasks(db:Session,status:str):
+    if status is None:
+        return db.query(Task).all()
+    return db.query(Task).where(Task.status == status).all()
 
 # To retrieve a single task from the database.
 def get_task(db:Session,id : int):
