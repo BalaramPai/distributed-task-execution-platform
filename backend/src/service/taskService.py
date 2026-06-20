@@ -35,11 +35,11 @@ def create_task_service(
         createdAt=saved_task.created_at
         )
     
-def get_all_tasks_service(db:Session,status:str,page:int,limit:int,search:str):
+def get_all_tasks_service(db:Session,status:str,page:int,limit:int,search:str,sort:str):
     
     response_all_tasks = []
     
-    all_tasks = get_all_tasks(db,status,page,limit,search)
+    all_tasks = get_all_tasks(db,status,page,limit,search,sort)
     
     
     for task in all_tasks:

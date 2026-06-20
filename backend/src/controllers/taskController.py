@@ -43,12 +43,13 @@ def get_all_tasks_controller(
     status : str,
     page : int,
     limit : int,
-    search : str
+    search : str,
+    sort:str
 ):
 
     try:
 
-        task_response = get_all_tasks_service(db,status,page,limit,search)
+        task_response = get_all_tasks_service(db,status,page,limit,search,sort)
         
         if status is None:
             return success_response(
