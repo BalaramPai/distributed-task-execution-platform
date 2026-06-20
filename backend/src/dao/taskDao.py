@@ -13,10 +13,16 @@ def create_task(db:Session,task:Task):
 
 
 # To retrieve all the tasks in the database.
-def get_all_tasks(db:Session,status:str,page:int,limit:int):
-    if status is None:
-        return db.query(Task).offset((page-1)*limit).limit(limit).all()
-    return db.query(Task).where(Task.status == status).offset((page-1)*limit).limit(limit).all()
+def get_all_tasks(db:Session,status:str,page:int,limit:int,search:str):
+    
+    query = db.query(Task)
+    
+    if status is not None:
+        query = query.where(Task.status == status)
+    if search is not None:
+        query = query.where(Task.title.ilike(f"%{search}%"))
+        
+    return query.offset((page-1)*limit).limit(limit).all()
 
 
 

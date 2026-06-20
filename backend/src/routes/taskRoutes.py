@@ -34,9 +34,10 @@ def get_all_tasks(
     status : str | None=None,
     page : int=1,
     limit : int =10,
+    search : str | None=None,
     db : Session = Depends(get_db)
 ):
-        return get_all_tasks_controller(db,status,page,limit)
+        return get_all_tasks_controller(db,status,page,limit,search)
 
 
 
