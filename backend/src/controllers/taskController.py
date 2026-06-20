@@ -40,12 +40,15 @@ def create_task_controller(
         
 def get_all_tasks_controller(
     db: Session,
-    status : str
+    status : str,
+    page : int,
+    limit : int
 ):
 
     try:
 
-        task_response = get_all_tasks_service(db,status)
+        task_response = get_all_tasks_service(db,status,page,limit)
+        
         if status is None:
             return success_response(
                 message="Tasks fetched successfully",

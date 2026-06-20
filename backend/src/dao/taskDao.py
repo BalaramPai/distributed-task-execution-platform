@@ -10,15 +10,23 @@ def create_task(db:Session,task:Task):
     db.refresh(task)   
     return task
 
+
+
 # To retrieve all the tasks in the database.
-def get_all_tasks(db:Session,status:str):
+def get_all_tasks(db:Session,status:str,page:int,limit:int):
     if status is None:
-        return db.query(Task).all()
-    return db.query(Task).where(Task.status == status).all()
+        return db.query(Task).offset((page-1)*limit).limit(limit).all()
+    return db.query(Task).where(Task.status == status).offset((page-1)*limit).limit(limit).all()
+
+
+
 
 # To retrieve a single task from the database.
 def get_task(db:Session,id : int):
     return db.query(Task).where(Task.id == id).first()
+
+
+
 
 def delete_task(db:Session,id:int):
     

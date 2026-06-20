@@ -27,12 +27,19 @@ def create_task(
 
     return create_task_controller(db,task)
 
+
+
 @router.get("/tasks")
 def get_all_tasks(
     status : str | None=None,
+    page : int=1,
+    limit : int =10,
     db : Session = Depends(get_db)
 ):
-        return get_all_tasks_controller(db,status)
+        return get_all_tasks_controller(db,status,page,limit)
+
+
+
     
 @router.get("/task/{id}")
 def get_task(
