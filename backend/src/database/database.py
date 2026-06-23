@@ -4,6 +4,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from src.models.taskModel import Base
+from src.models.userModel import User
 
 
 load_dotenv()
