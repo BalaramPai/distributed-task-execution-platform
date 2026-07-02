@@ -27,7 +27,8 @@ def create_task_controller(
 
         return success_response(
             message="Task has been created successfully",
-            data=task_response
+            data=task_response,
+            status_code=201
         )
 
     except Exception as e:
@@ -74,7 +75,7 @@ def get_task_controller(db:Session, id : int):
         task_response = get_task_service(db,id)
         
         if task_response == None:
-            return error_response(message=f"No such task with ID {id} exists")
+            return error_response(message=f"No such task with ID {id} exists",status_code=404)
         
         return success_response(
             message = f"Task wit ID {id} has been retrieved.",
@@ -91,7 +92,7 @@ def delete_task_controller(db:Session,id:int):
         task = delete_task_service(db,id)
         
         if task == None:
-            return error_response(message=f"No such task with ID {id} exists to be deleted.")
+            return error_response(message=f"No such task with ID {id} exists to be deleted.",status_code=404)
         
         return success_response(
             message = f"Task with ID {id} has been deleted successfully.",
@@ -110,7 +111,7 @@ def update_task_controller(db:Session,task:TaskUpdateRequestScehma,id:int):
         task = update_task_service(db,task,id)
         
         if task == None:
-            return error_response(message=f"No such task with ID {id} to update.")
+            return error_response(message=f"No such task with ID {id} to update.",status_code=404)
         
         return success_response(message=f"Task with the ID {id} has been updated successfully.",data=task)
     
@@ -125,7 +126,7 @@ def update_status_controller(db:Session,task:TaskStatusUpdateRequestSchema,id:in
         task = update_status_service(db,task,id)
         
         if task == None:
-            return error_response(message=f"No such task with ID {id} to update.")
+            return error_response(message=f"No such task with ID {id} to update.",status_code=404)
         
         return success_response(message=f"Task with the ID {id} has been updateD successfully.",data=task)
     

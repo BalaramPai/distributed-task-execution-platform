@@ -1,17 +1,37 @@
 # src/utilities/response.py
 
-def success_response(message='Sucessful',data=None):
-    return {
-        "status" : True,
-        "data" : data if data is not None else [],
-        "message" : message,
-        "error" : None
-    }
-    
-def error_response(message="Error",error=None):
-    return {
-        "status": False,
-        "data" : [],
-        "message" : message,
-        "error" : error if error is not None else "Something went wrong"
-    }
+from fastapi.responses import JSONResponse
+
+
+def success_response(
+    message: str,
+    data=None,
+    status_code: int = 200
+):
+
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "status": True,
+            "data": data,
+            "message": message,
+            "error": None
+        },
+    )
+
+
+def error_response(
+    message: str,
+    error=None,
+    status_code: int = 400
+):
+
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "status": False,
+            "data": [],
+            "message": message,
+            "error": error
+        },
+    )

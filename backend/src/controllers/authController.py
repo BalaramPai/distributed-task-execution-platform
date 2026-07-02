@@ -44,19 +44,22 @@ def register_controller(
 
         return success_response(
             message="User registered successfully.",
-            data=user
+            data=user,
+            status_code=201
         )
 
     except DuplicateEmailException as e:
 
         return error_response(
-            message=str(e)
+            message=str(e),
+            status_code=409
         )
 
     except DuplicateUsernameException as e:
 
         return error_response(
-            message=str(e)
+            message=str(e),
+            status_code=409
         )
 
     except Exception as e:
@@ -84,7 +87,8 @@ def login_controller(
     except InvalidCredentialsException as e:
 
         return error_response(
-            message=str(e)
+            message=str(e),
+            status_code=401
         )
 
     except Exception as e:
@@ -113,7 +117,8 @@ def refresh_token_controller(
     except InvalidTokenException as e:
 
         return error_response(
-            message=str(e)
+            message=str(e),
+            status_code=401
         )
 
     except Exception as e:
