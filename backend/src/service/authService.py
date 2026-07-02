@@ -37,6 +37,10 @@ from src.exceptions.authExceptions import (
     InvalidTokenException
 )
 
+from src.constants.authConstants import (
+    ACCESS_TOKEN,
+    REFRESH_TOKEN
+)
 
 def register_service(
     db: Session,
@@ -140,7 +144,7 @@ def refresh_token_service(
             "Invalid refresh token."
         )
 
-    if payload.get("type") != "refresh":
+    if payload.get("type") != REFRESH_TOKEN:
 
         raise InvalidTokenException(
             "Invalid refresh token."
@@ -172,7 +176,7 @@ def get_current_user_service(
             "Invalid token."
         )
 
-    if payload.get("type") != "access":
+    if payload.get("type") != ACCESS_TOKEN:
 
         raise InvalidTokenException(
             "Invalid access token."

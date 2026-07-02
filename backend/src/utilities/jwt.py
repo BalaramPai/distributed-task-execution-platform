@@ -7,6 +7,11 @@ import os
 from jose import jwt
 from jose import JWTError
 
+from src.constants.authConstants import (
+    ACCESS_TOKEN,
+    REFRESH_TOKEN
+)
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -40,7 +45,7 @@ def create_access_token(
     payload.update(
         {
             "exp": expire,
-            "type": "access"
+            "type": ACCESS_TOKEN
         }
     )
 
@@ -66,7 +71,7 @@ def create_refresh_token(
     payload.update(
         {
             "exp": expire,
-            "type": "refresh"
+            "type": REFRESH_TOKEN
         }
     )
 

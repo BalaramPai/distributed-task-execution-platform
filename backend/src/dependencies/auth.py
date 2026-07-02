@@ -14,6 +14,8 @@ from src.dao.authDao import get_user_by_id
 
 from src.models.userModel import UserRole
 
+from src.constants.authConstants import ACCESS_TOKEN
+
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"
@@ -34,7 +36,7 @@ def get_current_user(
             detail="Invalid Token"
         )
 
-    if payload.get("type") != "access":
+    if payload.get("type") != ACCESS_TOKEN:
 
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
