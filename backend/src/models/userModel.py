@@ -1,9 +1,15 @@
 # src/models/userModel.py
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Enum
 from src.models.taskModel import Base
 
+from enum import StrEnum
+
+
+class UserRole(StrEnum):
+    ADMIN = "ADMIN"
+    USER = "USER"
 
 class User(Base):
     __tablename__ = "users"
@@ -16,6 +22,6 @@ class User(Base):
 
     password_hash = Column(String(255), nullable=False)
 
-    role = Column(String(20), nullable=False, default="user")
-
+    role = Column(Enum(UserRole),nullable=False,default=UserRole.USER)
+    
     created_at = Column(DateTime, default=datetime.utcnow)

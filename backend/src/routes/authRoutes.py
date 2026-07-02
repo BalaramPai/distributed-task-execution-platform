@@ -28,7 +28,7 @@ from src.controllers.authController import (
 
 from src.dependencies.auth import get_current_user
 
-router = APIRouter()
+router = APIRouter(tags=["Authentication & Authorization"])
 
 
 @router.post("/auth/register")

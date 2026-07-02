@@ -12,6 +12,8 @@ from src.utilities.jwt import verify_token
 
 from src.dao.authDao import get_user_by_id
 
+from src.models.userModel import UserRole
+
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"
@@ -58,7 +60,7 @@ def require_admin(
     current_user=Depends(get_current_user)
 ):
 
-    if current_user.role != "admin":
+    if current_user.role != UserRole.ADMIN:
 
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

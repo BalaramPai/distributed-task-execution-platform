@@ -1,5 +1,7 @@
 # src/utilities/response.py
 
+from fastapi.encoders import jsonable_encoder
+
 from fastapi.responses import JSONResponse
 
 
@@ -11,12 +13,12 @@ def success_response(
 
     return JSONResponse(
         status_code=status_code,
-        content={
+        content=jsonable_encoder({
             "status": True,
             "data": data,
             "message": message,
             "error": None
-        },
+        }),
     )
 
 
@@ -28,10 +30,12 @@ def error_response(
 
     return JSONResponse(
         status_code=status_code,
-        content={
-            "status": False,
-            "data": [],
-            "message": message,
-            "error": error
-        },
+        content=jsonable_encoder(
+    {
+        "status": False,
+        "data": [],
+        "message": message,
+        "error": error,
+    }
+),
     )

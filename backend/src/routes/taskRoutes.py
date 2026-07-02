@@ -18,7 +18,7 @@ from src.database.database import get_db
 
 from src.dependencies.auth import get_current_user
 
-router = APIRouter()
+router = APIRouter(tags=["Task Flow"])
 
 
 @router.post("/tasks")
