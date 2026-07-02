@@ -6,13 +6,14 @@ from sqlalchemy import (
     String,
     Text,
     Date,
-    DateTime
+    DateTime,
+    ForeignKey
 )
 
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-Base = declarative_base()
+from src.database.base import Base
 
 
 class Task(Base):
@@ -41,4 +42,15 @@ class Task(Base):
         DateTime,
         nullable=False,
         server_default=func.now()
+    )
+    
+    owner_id = Column(
+    Integer,
+    ForeignKey("users.id"),
+    nullable=False
+    )
+    
+    owner = relationship(
+    "User",
+    back_populates="tasks"
     )

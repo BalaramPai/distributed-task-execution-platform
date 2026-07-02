@@ -28,7 +28,7 @@ def create_task(
     db: Session = Depends(get_db)
 ):
 
-    return create_task_controller(db,task)
+    return create_task_controller(db,task,current_user)
 
 
 
@@ -42,7 +42,7 @@ def get_all_tasks(
     current_user = Depends(get_current_user),
     db : Session = Depends(get_db)
 ):
-        return get_all_tasks_controller(db,status,page,limit,search,sort)
+        return get_all_tasks_controller(db,status,page,limit,search,sort,current_user)
 
 
 
@@ -53,7 +53,7 @@ def get_task(
     current_user = Depends(get_current_user),
     db : Session = Depends(get_db)
 ):
-    return get_task_controller(db,id)
+    return get_task_controller(db,id,current_user)
 
 @router.delete("/task/{id}")
 def delete_task(
@@ -61,7 +61,7 @@ def delete_task(
     current_user = Depends(get_current_user),
     db:Session = Depends(get_db)
 ):
-    return delete_task_controller(db,id)
+    return delete_task_controller(db,id,current_user)
 
 @router.put("/task/{id}")
 def update_task(
@@ -70,7 +70,7 @@ def update_task(
     current_user = Depends(get_current_user),
     db : Session = Depends(get_db)
 ):
-    return update_task_controller(db,task,id)
+    return update_task_controller(db,task,id,current_user)
 
 @router.patch("/task/{id}/status")
 def update_status(
@@ -79,4 +79,4 @@ def update_status(
     current_user = Depends(get_current_user),
     db : Session = Depends(get_db)
 ):
-    return update_status_controller(db,task,id)
+    return update_status_controller(db,task,id,current_user)

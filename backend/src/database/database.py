@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.models.taskModel import Base
+from src.database.base import Base
 from src.models.userModel import User
+from src.models.taskModel import Task
 
 
 load_dotenv()

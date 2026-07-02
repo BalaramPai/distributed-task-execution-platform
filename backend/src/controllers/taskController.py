@@ -16,14 +16,18 @@ from src.utilities.response import (
 )
 
 
+from src.models.userModel import User
+
+
 def create_task_controller(
     db: Session,
-    task: TaskCreateRequestSchema
+    task: TaskCreateRequestSchema,
+    current_user: User
 ):
 
     try:
 
-        task_response = create_task_service(db,task)
+        task_response = create_task_service(db,task,current_user)
 
         return success_response(
             message="Task has been created successfully",
@@ -41,16 +45,17 @@ def create_task_controller(
         
 def get_all_tasks_controller(
     db: Session,
-    status : str,
-    page : int,
-    limit : int,
-    search : str,
-    sort:str
+    status: str,
+    page: int,
+    limit: int,
+    search: str,
+    sort: str,
+    current_user: User
 ):
 
     try:
 
-        task_response = get_all_tasks_service(db,status,page,limit,search,sort)
+        task_response = get_all_tasks_service(db,status,page,limit,search,sort,current_user)
         
         if status is None:
             return success_response(
@@ -70,9 +75,9 @@ def get_all_tasks_controller(
         )
         
 
-def get_task_controller(db:Session, id : int):
+def get_task_controller(db:Session, id : int,current_user: User):
     try:
-        task_response = get_task_service(db,id)
+        task_response = get_task_service(db,id,current_user)
         
         if task_response == None:
             return error_response(message=f"No such task with ID {id} exists",status_code=404)
@@ -87,9 +92,9 @@ def get_task_controller(db:Session, id : int):
             error = str(e)
         )
         
-def delete_task_controller(db:Session,id:int):
+def delete_task_controller(db:Session,id:int,current_user: User):
     try:
-        task = delete_task_service(db,id)
+        task = delete_task_service(db,id,current_user)
         
         if task == None:
             return error_response(message=f"No such task with ID {id} exists to be deleted.",status_code=404)
@@ -106,9 +111,9 @@ def delete_task_controller(db:Session,id:int):
         )
         
 
-def update_task_controller(db:Session,task:TaskUpdateRequestScehma,id:int):
+def update_task_controller(db:Session,task:TaskUpdateRequestScehma,id:int,current_user: User):
     try:
-        task = update_task_service(db,task,id)
+        task = update_task_service(db,task,id,current_user)
         
         if task == None:
             return error_response(message=f"No such task with ID {id} to update.",status_code=404)
@@ -121,9 +126,9 @@ def update_task_controller(db:Session,task:TaskUpdateRequestScehma,id:int):
             error = str(e)
         )
 
-def update_status_controller(db:Session,task:TaskStatusUpdateRequestSchema,id:int):
+def update_status_controller(db:Session,task:TaskStatusUpdateRequestSchema,id:int,current_user: User):
     try:
-        task = update_status_service(db,task,id)
+        task = update_status_service(db,task,id,current_user)
         
         if task == None:
             return error_response(message=f"No such task with ID {id} to update.",status_code=404)

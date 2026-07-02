@@ -2,7 +2,9 @@
 
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Enum
-from src.models.taskModel import Base
+from sqlalchemy.orm import relationship
+
+from src.database.base import Base
 
 from enum import StrEnum
 
@@ -25,3 +27,9 @@ class User(Base):
     role = Column(Enum(UserRole),nullable=False,default=UserRole.USER)
     
     created_at = Column(DateTime, default=datetime.utcnow)
+    
+    tasks = relationship(
+    "Task",
+    back_populates="owner",
+    cascade="all, delete-orphan"
+)

@@ -2,6 +2,7 @@
 
 from sqlalchemy.orm import Session
 from src.models.taskModel import Task
+from src.models.userModel import User
 
 # To create a task and insert it into the database.
 def create_task(db:Session,task:Task):
@@ -13,9 +14,10 @@ def create_task(db:Session,task:Task):
 
 
 # To retrieve all the tasks in the database.
-def get_all_tasks(db:Session,status:str,page:int,limit:int,search:str,sort:str):
+def get_all_tasks(db:Session,status:str,page:int,limit:int,search:str,sort:str,owner_id: int):
     
     query = db.query(Task)
+    query = query.where(Task.owner_id == owner_id)
     
     if status is not None:
         query = query.where(Task.status == status)
@@ -40,23 +42,26 @@ def get_all_tasks(db:Session,status:str,page:int,limit:int,search:str,sort:str):
 
 
 # To retrieve a single task from the database.
-def get_task(db:Session,id : int):
-    return db.query(Task).where(Task.id == id).first()
+def get_task(db:Session,id : int,owner_id: int):
+    return (
+        db.query(Task)
+        .where(
+            Task.id == id,
+            Task.owner_id == owner_id
+        )
+        .first()
+    )
 
 
 
 
-def delete_task(db:Session,id:int):
-    
-    task = get_task(db,id)
-    
-    if task is None:
-        return None
-    else:
-        db.delete(task)
-        db.commit()
-    
+def delete_task(db: Session,task: Task):
+
+    db.delete(task)
+    db.commit()
     return task
+
+
 
 def update_task(db:Session,task:Task):
     db.commit()

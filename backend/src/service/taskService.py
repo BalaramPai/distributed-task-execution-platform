@@ -8,9 +8,13 @@ from src.models.taskModel import Task
 from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task,update_task
 
 
+from src.models.userModel import User
+
+
 def create_task_service(
     db: Session,
-    task: TaskCreateRequestSchema
+    task: TaskCreateRequestSchema,
+    current_user: User
 ):
 
     # Used in create as there is no exisitng row. 
@@ -19,7 +23,8 @@ def create_task_service(
         description=task.description,
         duration=task.duration,
         location=task.location,
-        due_date=task.dueDate
+        due_date=task.dueDate,
+        owner_id=current_user.id
     )
 
     saved_task = create_task(db,task_model)
@@ -35,11 +40,11 @@ def create_task_service(
         createdAt=saved_task.created_at
         )
     
-def get_all_tasks_service(db:Session,status:str,page:int,limit:int,search:str,sort:str):
+def get_all_tasks_service(db:Session,status:str,page:int,limit:int,search:str,sort:str,current_user: User):
     
     response_all_tasks = []
     
-    all_tasks = get_all_tasks(db,status,page,limit,search,sort)
+    all_tasks = get_all_tasks(db,status,page,limit,search,sort,current_user.id)
     
     
     for task in all_tasks:
@@ -59,9 +64,9 @@ def get_all_tasks_service(db:Session,status:str,page:int,limit:int,search:str,so
     return response_all_tasks
 
 
-def get_task_service( db:Session, id : int):
+def get_task_service( db:Session, id : int,current_user: User):
     
-    task = get_task(db,id)
+    task = get_task(db,id,current_user.id)
     
     if task is None:
         return None
@@ -77,27 +82,29 @@ def get_task_service( db:Session, id : int):
             createdAt=task.created_at
             )
      
-def delete_task_service(db:Session,id:int):
-    
-    task = delete_task(db,id)
-    
+def delete_task_service(db: Session,id: int,current_user: User):
+
+    task = get_task(db,id,current_user.id)
+
     if task is None:
         return None
-    
+
+    delete_task(db,task)
+
     return TaskResponseSchema(
-            id=task.id,
-            title=task.title,
-            description=task.description,
-            duration=task.duration,
-            location=task.location,
-            dueDate=task.due_date,
-            status=task.status,
-            createdAt=task.created_at
-            )
+        id=task.id,
+        title=task.title,
+        description=task.description,
+        duration=task.duration,
+        location=task.location,
+        dueDate=task.due_date,
+        status=task.status,
+        createdAt=task.created_at
+    )
     
-def update_task_service(db:Session,updated_task:TaskUpdateRequestScehma,id:int):
+def update_task_service(db:Session,updated_task:TaskUpdateRequestScehma,id:int,current_user: User):
     
-    task = get_task(db,id)
+    task = get_task(db,id,current_user.id)
     
     if task is None:
         return None
@@ -131,9 +138,9 @@ def update_task_service(db:Session,updated_task:TaskUpdateRequestScehma,id:int):
             )
     
 
-def update_status_service(db:Session,updated_task:TaskStatusUpdateRequestSchema,id:int):
+def update_status_service(db:Session,updated_task:TaskStatusUpdateRequestSchema,id:int,current_user: User):
     
-    task = get_task(db,id)
+    task = get_task(db,id,current_user.id)
     
     if task is None:
         return None
