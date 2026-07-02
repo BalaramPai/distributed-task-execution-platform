@@ -16,12 +16,15 @@ from src.schemas.taskSchema import (
     TaskStatusUpdateRequestSchema)
 from src.database.database import get_db
 
+from src.dependencies.auth import get_current_user
+
 router = APIRouter()
 
 
 @router.post("/tasks")
 def create_task(
     task: TaskCreateRequestSchema,
+    current_user = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
 
@@ -36,6 +39,7 @@ def get_all_tasks(
     page : int=1,
     limit : int =10,
     search : str | None=None,
+    current_user = Depends(get_current_user),
     db : Session = Depends(get_db)
 ):
         return get_all_tasks_controller(db,status,page,limit,search,sort)
@@ -46,6 +50,7 @@ def get_all_tasks(
 @router.get("/task/{id}")
 def get_task(
     id : int,
+    current_user = Depends(get_current_user),
     db : Session = Depends(get_db)
 ):
     return get_task_controller(db,id)
@@ -53,6 +58,7 @@ def get_task(
 @router.delete("/task/{id}")
 def delete_task(
     id: int,
+    current_user = Depends(get_current_user),
     db:Session = Depends(get_db)
 ):
     return delete_task_controller(db,id)
@@ -61,6 +67,7 @@ def delete_task(
 def update_task(
     id: int,
     task : TaskUpdateRequestScehma,
+    current_user = Depends(get_current_user),
     db : Session = Depends(get_db)
 ):
     return update_task_controller(db,task,id)
@@ -69,6 +76,7 @@ def update_task(
 def update_status(
     id :int,
     task : TaskStatusUpdateRequestSchema,
+    current_user = Depends(get_current_user),
     db : Session = Depends(get_db)
 ):
     return update_status_controller(db,task,id)
