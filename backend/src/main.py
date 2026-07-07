@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     for i in range(1,NUM_WORKERS+1):
         worker_thread = threading.Thread(target=worker,daemon=True,name=f"Worker-{i}")
         worker_thread.start()
-    yield
+    yield       # A yielding thread does not go into a sleeping or blocked state. It simply moves from the Running state back to the Runnable state, making it eligible to be scheduled again immediately
     
     
 app = FastAPI(title="Distributed Task Execution Platform",version="1.0.0",lifespan=lifespan) # We include the thread here inside the FastAPI Process.

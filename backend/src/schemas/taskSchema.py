@@ -9,6 +9,7 @@ class AllowedStatus(StrEnum):
     QUEUED = "QUEUED"
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
 
 
 class TaskCreateRequestSchema(BaseModel):
@@ -28,6 +29,7 @@ class TaskResponseSchema(BaseModel):
     dueDate : date | None = None
     status : str
     createdAt : datetime
+    retry_count : int
     
     
 class TaskUpdateRequestScehma(BaseModel):

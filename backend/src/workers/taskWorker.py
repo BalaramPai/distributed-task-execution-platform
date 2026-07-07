@@ -1,7 +1,7 @@
 # src/workers/taskWorker.py
 from src.queue.queueManager import task_queue
 from src.database.database import SessionLocal
-from src.service.taskService import execute_task
+from src.service.taskService import process_task
 
 import threading
 from time import sleep
@@ -16,11 +16,14 @@ def worker():
                 sleep(1)
                 continue
             
-            if task_id:
+            else:
                 print(f"{threading.current_thread().name} picked Task {task_id}")
-                execute_task(db,task_id)               
+                process_task(db, task_id)               
     finally:
         db.close()
+        
+        
+                
         
         
         

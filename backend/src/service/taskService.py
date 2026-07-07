@@ -7,10 +7,13 @@ from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema,Ta
 from src.models.taskModel import Task
 from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task,update_task,get_task_for_worker
 from src.queue.queueManager import task_queue
+from src.exceptions.taskExceptions import TransientTaskError,PermanentTaskError
 from time import sleep
 
 
 from src.models.userModel import User
+
+MAX_RETRIES = 3
 
 
 def create_task_service(
@@ -26,7 +29,7 @@ def create_task_service(
         duration=task.duration,
         location=task.location,
         due_date=task.dueDate,
-        owner_id=current_user.id
+        owner_id=current_user.id,
     )
 
     saved_task = create_task(db,task_model)
@@ -41,7 +44,8 @@ def create_task_service(
         location=saved_task.location,
         dueDate=saved_task.due_date,
         status=saved_task.status,
-        createdAt=saved_task.created_at
+        createdAt=saved_task.created_at,
+        retry_count=saved_task.retry_count
         )
     
 def get_all_tasks_service(db:Session,status:str,page:int,limit:int,search:str,sort:str,current_user: User):
@@ -61,7 +65,8 @@ def get_all_tasks_service(db:Session,status:str,page:int,limit:int,search:str,so
             location=task.location,
             dueDate=task.due_date,
             status=task.status,
-            createdAt=task.created_at
+            createdAt=task.created_at,
+            retry_count=task.retry_count
             )
         )
 
@@ -83,7 +88,8 @@ def get_task_service( db:Session, id : int,current_user: User):
             location=task.location,
             dueDate=task.due_date,
             status=task.status,
-            createdAt=task.created_at
+            createdAt=task.created_at,
+            retry_count=task.retry_count
             )
      
 def delete_task_service(db: Session,id: int,current_user: User):
@@ -103,7 +109,8 @@ def delete_task_service(db: Session,id: int,current_user: User):
         location=task.location,
         dueDate=task.due_date,
         status=task.status,
-        createdAt=task.created_at
+        createdAt=task.created_at,
+        retry_count=task.retry_count
     )
     
 def update_task_service(db:Session,updated_task:TaskUpdateRequestScehma,id:int,current_user: User):
@@ -138,7 +145,8 @@ def update_task_service(db:Session,updated_task:TaskUpdateRequestScehma,id:int,c
             location=task.location,
             dueDate=task.due_date,
             status=task.status,
-            createdAt=task.created_at
+            createdAt=task.created_at,
+            retry_count=task.retry_count
             )
     
 
@@ -161,7 +169,8 @@ def update_status_service(db:Session,updated_task:TaskStatusUpdateRequestSchema,
             location=task.location,
             dueDate=task.due_date,
             status=task.status,
-            createdAt=task.created_at
+            createdAt=task.created_at,
+            retry_count=task.retry_count
             )
     
     
@@ -179,12 +188,86 @@ def execute_task(db:Session,id:int):
     
     sleep(5)
     
+    raise TransientTaskError("Testing retry")
+    
     print(f"Task {id} completed")
     task.status = AllowedStatus.COMPLETED
         
     update_task(db,task)
     
-    
+
+
+
+def process_task(db: Session, task_id: int):
+    """
+    Handles task execution and retry logic.
+    """
+
+    try:
+        execute_task(db, task_id)
+
+    except TransientTaskError as e:
+        print(f"Transient Error: {e}")
+
+        task = get_task_for_worker(db, task_id)
+
+        if task is None:
+            return
+
+        task.retry_count += 1
+
+        if task.retry_count < MAX_RETRIES:
+
+            print(
+                f"Retrying Task {task.id} "
+                f"({task.retry_count}/{MAX_RETRIES})"
+            )
+
+            task.status = AllowedStatus.QUEUED
+
+            update_task(db, task)
+
+            task_queue.enqueue(task.id)
+
+        else:
+
+            print(
+                f"Task {task.id} exceeded maximum retries."
+            )
+
+            task.status = AllowedStatus.FAILED
+
+            update_task(db, task)
+
+            # Phase 2H
+            # dead_letter_queue.enqueue(task.id)
+
+    except PermanentTaskError as e:
+        print(f"Permanent Error: {e}")
+
+        task = get_task_for_worker(db, task_id)
+
+        if task is None:
+            return
+
+        task.status = AllowedStatus.FAILED
+
+        update_task(db, task)
+
+        # Phase 2H
+        # dead_letter_queue.enqueue(task.id)
+
+    except Exception as e:
+        print(f"Unexpected Error: {e}")
+
+        task = get_task_for_worker(db, task_id)
+
+        if task is None:
+            return
+
+        task.status = AllowedStatus.FAILED
+
+        update_task(db, task)
     
     
     

@@ -54,3 +54,5 @@ class Task(Base):
     "User",
     back_populates="tasks"
     )
+    
+    retry_count = Column(Integer, default=0)
