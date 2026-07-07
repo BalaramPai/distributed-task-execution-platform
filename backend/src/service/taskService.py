@@ -188,8 +188,6 @@ def execute_task(db:Session,id:int):
     
     sleep(5)
     
-    raise TransientTaskError("Testing retry")
-    
     print(f"Task {id} completed")
     task.status = AllowedStatus.COMPLETED
         
