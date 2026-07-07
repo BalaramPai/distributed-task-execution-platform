@@ -10,7 +10,7 @@ from src.workers.taskWorker import worker
 import threading
 from contextlib import asynccontextmanager
 
-
+# So we create a thread for the worker process so that the worker and FASTAPI share the same process but work on mutliple threads sharing the same resources.
 @asynccontextmanager
 async def lifespan(app: FastAPI):   
     print("Starting Worker Thread.")
@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     yield
     
     
-app = FastAPI(title="Distributed Task Execution Platform",version="1.0.0",lifespan=lifespan)
+app = FastAPI(title="Distributed Task Execution Platform",version="1.0.0",lifespan=lifespan) # We include the thread here inside the FastAPI Process.
 
 
 app.include_router(health_router)
