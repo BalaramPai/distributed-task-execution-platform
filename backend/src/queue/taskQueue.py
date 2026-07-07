@@ -1,22 +1,28 @@
 # src/queue/taskQueue.py
 from collections import deque
+from threading import Lock
+
 
 class TaskQueue:
     def __init__(self):
         self.task_queue = deque()
+        self.lock = Lock()
 
     def enqueue(self,task_id):
-        self.task_queue.append(task_id)
-        return True
+        with self.lock:                         # So the "with lock:" statement internally acquires and released the lock before and after the process.
+            self.task_queue.append(task_id)
+            return True
     
     def dequeue(self):
-        if self.task_queue:
-            return self.task_queue.popleft()
+        with self.lock:                         # Here also the lock is acquired and released irrespectove of an error or not.
+            if self.task_queue:
+                return self.task_queue.popleft()
         return None
         
     def peek(self):
-        if not self.is_empty():
-            return self.task_queue[0]
+        with self.lock:
+            if not self.is_empty():
+                return self.task_queue[0]
         return None
         
     def size(self):

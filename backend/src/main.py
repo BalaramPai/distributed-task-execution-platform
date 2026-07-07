@@ -10,12 +10,15 @@ from src.workers.taskWorker import worker
 import threading
 from contextlib import asynccontextmanager
 
+NUM_WORKERS = 3
+
 # So we create a thread for the worker process so that the worker and FASTAPI share the same process but work on mutliple threads sharing the same resources.
 @asynccontextmanager
-async def lifespan(app: FastAPI):   
-    print("Starting Worker Thread.")
-    worker_thread = threading.Thread(target=worker,daemon=True)
-    worker_thread.start()
+async def lifespan(app: FastAPI): 
+    print("Starting Worker Threads.")  
+    for i in range(1,NUM_WORKERS+1):
+        worker_thread = threading.Thread(target=worker,daemon=True,name=f"Worker-{i}")
+        worker_thread.start()
     yield
     
     
