@@ -6,7 +6,7 @@ from threading import Lock
 class TaskQueue:
     def __init__(self):
         self.task_queue = deque()
-        self.lock = Lock()
+        self.lock = Lock()                      # We use the locking for "Thread-safe TaskQueue" , Synchronisation, Mutual Exclusion.
 
     def enqueue(self,task_id):
         with self.lock:                         # So the "with lock:" statement internally acquires and released the lock before and after the process.
