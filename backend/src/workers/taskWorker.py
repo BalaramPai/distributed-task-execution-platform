@@ -7,20 +7,21 @@ from time import sleep
 
 db = SessionLocal()
 
-try:
-    while True:
-        if task_queue.is_empty():
-            sleep(1)
-            continue
+def worker():
+    try:
+        while True:
+            if task_queue.is_empty():
+                sleep(1)
+                continue
+                
+            task_id = task_queue.dequeue()
             
-        task_id = task_queue.dequeue()
-        
-        if task_id:
-            print(f"Worker picked Task {id}")
-            execute_task(db,task_id)
-            
-finally:
-    db.close()
+            if task_id:
+                print(f"Worker picked Task {id}")
+                execute_task(db,task_id)
+                
+    finally:
+        db.close()
         
         
         
