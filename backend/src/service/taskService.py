@@ -3,10 +3,11 @@
 from sqlalchemy.orm import Session
 
 from src.utilities.response import error_response
-from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema,TaskUpdateRequestScehma,TaskStatusUpdateRequestSchema
+from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema,TaskUpdateRequestScehma,TaskStatusUpdateRequestSchema,AllowedStatus
 from src.models.taskModel import Task
-from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task,update_task
+from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task,update_task,get_task_for_worker
 from src.queue.queueManager import task_queue
+from time import sleep
 
 
 from src.models.userModel import User
@@ -163,6 +164,25 @@ def update_status_service(db:Session,updated_task:TaskStatusUpdateRequestSchema,
             createdAt=task.created_at
             )
     
+    
+def execute_task(db:Session,id:int):
+    
+    task = get_task_for_worker(db,id)
+    
+    if task is None:
+        return None
+    
+    print(f"Task {id} is now IN_PROGRESS")
+    task.status = AllowedStatus.IN_PROGRESS
+    
+    update_task(db,task)
+    
+    sleep(5)
+    
+    print(f"Task {id} completed")
+    task.status = AllowedStatus.COMPLETED
+        
+    update_task(db,task)
     
     
     

@@ -35,7 +35,7 @@ class Task(Base):
     status = Column(
         String(20),
         nullable=False,
-        default="PENDING"
+        default="QUEUED"
     )
 
     created_at = Column(

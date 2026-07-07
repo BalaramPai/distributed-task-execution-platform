@@ -6,9 +6,9 @@ from datetime import datetime,date
 # Helper Enums Class (i.e. Datatype for Validation of Status like Field from pydantic for other fields.)
 from enum import StrEnum
 class AllowedStatus(StrEnum):
-    PENDING = "PENDING"
-    COMPLETED = "COMPLETED"
+    QUEUED = "QUEUED"
     IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
 
 
 class TaskCreateRequestSchema(BaseModel):
