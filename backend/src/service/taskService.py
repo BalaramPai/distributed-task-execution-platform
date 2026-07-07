@@ -6,7 +6,7 @@ from src.utilities.response import error_response
 from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema,TaskUpdateRequestScehma,TaskStatusUpdateRequestSchema,AllowedStatus
 from src.models.taskModel import Task
 from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task,update_task,get_task_for_worker
-from src.queue.queueManager import task_queue
+from src.queue.queueManager import task_queue,dead_letter_queue
 from src.exceptions.taskExceptions import TransientTaskError,PermanentTaskError
 from time import sleep
 
@@ -237,8 +237,7 @@ def process_task(db: Session, task_id: int):
 
             update_task(db, task)
 
-            # Phase 2H
-            # dead_letter_queue.enqueue(task.id)
+            dead_letter_queue.enqueue(task.id)
 
     except PermanentTaskError as e:
         print(f"Permanent Error: {e}")
@@ -252,8 +251,7 @@ def process_task(db: Session, task_id: int):
 
         update_task(db, task)
 
-        # Phase 2H
-        # dead_letter_queue.enqueue(task.id)
+        dead_letter_queue.enqueue(task.id)
 
     except Exception as e:
         print(f"Unexpected Error: {e}")

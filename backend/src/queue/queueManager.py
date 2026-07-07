@@ -4,3 +4,6 @@ from src.queue.taskQueue import TaskQueue
 
 # This queue object is for tasks.
 task_queue = TaskQueue()
+
+# This queue is for tasks that have finished their maximum number of tries.
+dead_letter_queue = TaskQueue()
