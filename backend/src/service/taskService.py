@@ -6,6 +6,7 @@ from src.utilities.response import error_response
 from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema,TaskUpdateRequestScehma,TaskStatusUpdateRequestSchema
 from src.models.taskModel import Task
 from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task,update_task
+from src.queue.queueManager import task_queue
 
 
 from src.models.userModel import User
@@ -29,6 +30,8 @@ def create_task_service(
 
     saved_task = create_task(db,task_model)
     
+    task_queue.enqueue(saved_task.id)
+ 
     return TaskResponseSchema(
         id=saved_task.id,
         title=saved_task.title,

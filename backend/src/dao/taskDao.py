@@ -41,7 +41,7 @@ def get_all_tasks(db:Session,status:str,page:int,limit:int,search:str,sort:str,o
 
 
 
-# To retrieve a single task from the database.
+# To retrieve a single task from the database.(Authenticated and Authorised)
 def get_task(db:Session,id : int,owner_id: int):
     return (
         db.query(Task)
@@ -51,6 +51,10 @@ def get_task(db:Session,id : int,owner_id: int):
         )
         .first()
     )
+
+# To retrieve a single task from the database for the worker.
+def get_task_for_worker(db:Session,id:int):
+    return db.query(Task).where(Task.id == id).first()
 
 
 
