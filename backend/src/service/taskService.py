@@ -3,7 +3,8 @@
 from sqlalchemy.orm import Session
 
 from src.utilities.response import error_response
-from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema,TaskUpdateRequestScehma,TaskStatusUpdateRequestSchema,AllowedStatus
+from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema,TaskUpdateRequestScehma,TaskStatusUpdateRequestSchema
+from src.schemas.enums import TaskStatus
 from src.models.taskModel import Task
 from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task,update_task,get_task_for_worker
 from src.queue.queueManager import task_queue,dead_letter_queue
@@ -182,14 +183,14 @@ def execute_task(db:Session,id:int):
         return None
     
     print(f"Task {id} is now IN_PROGRESS")
-    task.status = AllowedStatus.IN_PROGRESS
+    task.status = TaskStatus.IN_PROGRESS
     
     update_task(db,task)
     
     sleep(5)
     
     print(f"Task {id} completed")
-    task.status = AllowedStatus.COMPLETED
+    task.status = TaskStatus.COMPLETED
         
     update_task(db,task)
     
@@ -221,7 +222,7 @@ def process_task(db: Session, task_id: int):
                 f"({task.retry_count}/{MAX_RETRIES})"
             )
 
-            task.status = AllowedStatus.QUEUED
+            task.status = TaskStatus.QUEUED
 
             update_task(db, task)
 
@@ -233,7 +234,7 @@ def process_task(db: Session, task_id: int):
                 f"Task {task.id} exceeded maximum retries."
             )
 
-            task.status = AllowedStatus.FAILED
+            task.status = TaskStatus.FAILED
 
             update_task(db, task)
 
@@ -247,7 +248,7 @@ def process_task(db: Session, task_id: int):
         if task is None:
             return
 
-        task.status = AllowedStatus.FAILED
+        task.status = TaskStatus.FAILED
 
         update_task(db, task)
 
@@ -261,7 +262,7 @@ def process_task(db: Session, task_id: int):
         if task is None:
             return
 
-        task.status = AllowedStatus.FAILED
+        task.status = TaskStatus.FAILED
 
         update_task(db, task)
     

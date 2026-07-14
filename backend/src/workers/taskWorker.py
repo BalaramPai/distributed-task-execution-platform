@@ -7,11 +7,11 @@ import threading
 from time import sleep
 
 
-def worker():
+def worker():   
     db = SessionLocal()
     try:
         while True:
-            task_id = task_queue.dequeue()
+            task_id = task_queue.dequeue()  # Used so while the task queue is empty it keeps refreshing.
             if task_id is None:         # Instead of is_empty as it can incurr Time-of-Check to Time-of-Use (TOCTOU) race condition.
                 sleep(1)
                 continue
