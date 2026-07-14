@@ -3,7 +3,7 @@
 from sqlalchemy.orm import Session
 
 from src.utilities.response import error_response
-from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema,TaskUpdateRequestScehma,TaskStatusUpdateRequestSchema
+from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema,TaskUpdateRequestSchema,TaskStatusUpdateRequestSchema
 from src.schemas.enums import TaskStatus
 from src.models.taskModel import Task
 from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task,update_task,get_task_for_worker
@@ -114,7 +114,7 @@ def delete_task_service(db: Session,id: int,current_user: User):
         retry_count=task.retry_count
     )
     
-def update_task_service(db:Session,updated_task:TaskUpdateRequestScehma,id:int,current_user: User):
+def update_task_service(db:Session,updated_task:TaskUpdateRequestSchema,id:int,current_user: User):
     
     task = get_task(db,id,current_user.id)
     

@@ -9,7 +9,7 @@ from src.service.taskService import (
     delete_task_service,
     update_task_service,
     update_status_service)
-from src.schemas.taskSchema import TaskCreateRequestSchema,TaskUpdateRequestScehma,TaskStatusUpdateRequestSchema
+from src.schemas.taskSchema import TaskCreateRequestSchema,TaskUpdateRequestSchema,TaskStatusUpdateRequestSchema
 from src.utilities.response import (
     success_response,
     error_response
@@ -111,7 +111,7 @@ def delete_task_controller(db:Session,id:int,current_user: User):
         )
         
 
-def update_task_controller(db:Session,task:TaskUpdateRequestScehma,id:int,current_user: User):
+def update_task_controller(db:Session,task:TaskUpdateRequestSchema,id:int,current_user: User):
     try:
         task = update_task_service(db,task,id,current_user)
         

@@ -12,7 +12,7 @@ from src.controllers.taskController import (
     update_status_controller)
 from src.schemas.taskSchema import (
     TaskCreateRequestSchema,
-    TaskUpdateRequestScehma,
+    TaskUpdateRequestSchema,
     TaskStatusUpdateRequestSchema)
 from src.database.database import get_db
 
@@ -66,7 +66,7 @@ def delete_task(
 @router.put("/task/{id}")
 def update_task(
     id: int,
-    task : TaskUpdateRequestScehma,
+    task : TaskUpdateRequestSchema,
     current_user = Depends(get_current_user),
     db : Session = Depends(get_db)
 ):
