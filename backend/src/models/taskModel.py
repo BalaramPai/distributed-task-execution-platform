@@ -13,7 +13,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+from sqlalchemy import Enum
+
 from src.database.base import Base
+from src.schemas.enums import TaskPriority,TaskStatus
 
 
 class Task(Base):
@@ -31,11 +34,17 @@ class Task(Base):
     location = Column(String(255))
 
     due_date = Column(Date)
+    
+    priority = Column(
+        Enum(TaskPriority),
+        nullable=False,
+        default=TaskPriority.MEDIUM
+    )
 
     status = Column(
-        String(20),
+        Enum(TaskStatus),
         nullable=False,
-        default="QUEUED"
+        default=TaskStatus.QUEUED
     )
 
     created_at = Column(
