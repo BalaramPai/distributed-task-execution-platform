@@ -31,6 +31,7 @@ def create_task_service(
         location=task.location,
         due_date=task.dueDate,
         owner_id=current_user.id,
+        priority = task.priority,
     )
 
     saved_task = create_task(db,task_model)
@@ -44,6 +45,7 @@ def create_task_service(
         duration=saved_task.duration,
         location=saved_task.location,
         dueDate=saved_task.due_date,
+        priority=saved_task.priority,
         status=saved_task.status,
         createdAt=saved_task.created_at,
         retry_count=saved_task.retry_count
@@ -65,6 +67,7 @@ def get_all_tasks_service(db:Session,status:str,page:int,limit:int,search:str,so
             duration=task.duration,
             location=task.location,
             dueDate=task.due_date,
+            priority=task.priority,
             status=task.status,
             createdAt=task.created_at,
             retry_count=task.retry_count
@@ -88,6 +91,7 @@ def get_task_service( db:Session, id : int,current_user: User):
             duration=task.duration,
             location=task.location,
             dueDate=task.due_date,
+            priority=task.priority,
             status=task.status,
             createdAt=task.created_at,
             retry_count=task.retry_count
@@ -109,6 +113,7 @@ def delete_task_service(db: Session,id: int,current_user: User):
         duration=task.duration,
         location=task.location,
         dueDate=task.due_date,
+        priority=task.priority,
         status=task.status,
         createdAt=task.created_at,
         retry_count=task.retry_count
@@ -135,6 +140,10 @@ def update_task_service(db:Session,updated_task:TaskUpdateRequestSchema,id:int,c
         
     if updated_task.dueDate is not None:
         task.due_date = updated_task.dueDate
+        
+    if updated_task.priority is not None:
+        task.priority = updated_task.priority
+        
     
     update_task(db,task)
     
@@ -145,6 +154,7 @@ def update_task_service(db:Session,updated_task:TaskUpdateRequestSchema,id:int,c
             duration=task.duration,
             location=task.location,
             dueDate=task.due_date,
+            priority=task.priority,
             status=task.status,
             createdAt=task.created_at,
             retry_count=task.retry_count
@@ -169,6 +179,7 @@ def update_status_service(db:Session,updated_task:TaskStatusUpdateRequestSchema,
             duration=task.duration,
             location=task.location,
             dueDate=task.due_date,
+            priority=task.priority,
             status=task.status,
             createdAt=task.created_at,
             retry_count=task.retry_count
