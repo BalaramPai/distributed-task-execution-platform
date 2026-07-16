@@ -36,7 +36,8 @@ class TaskQueue:
         return None
 
     def size(self):
-        return len(self.task_queue)
+        with self.lock:
+            return len(self.task_queue)
 
     def is_empty(self):
         return self.size() == 0
