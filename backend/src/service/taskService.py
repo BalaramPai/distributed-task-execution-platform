@@ -36,7 +36,7 @@ def create_task_service(
 
     saved_task = create_task(db,task_model)
     
-    task_queue.enqueue(saved_task.id)
+    task_queue.enqueue(saved_task.id,saved_task.priority)
  
     return TaskResponseSchema(
         id=saved_task.id,
@@ -237,7 +237,7 @@ def process_task(db: Session, task_id: int):
 
             update_task(db, task)
 
-            task_queue.enqueue(task.id)
+            task_queue.enqueue(task.id,task.priority)
 
         else:
 
@@ -249,7 +249,7 @@ def process_task(db: Session, task_id: int):
 
             update_task(db, task)
 
-            dead_letter_queue.enqueue(task.id)
+            dead_letter_queue.enqueue(task.id,task.priority)
 
     except PermanentTaskError as e:
         print(f"Permanent Error: {e}")
@@ -263,7 +263,7 @@ def process_task(db: Session, task_id: int):
 
         update_task(db, task)
 
-        dead_letter_queue.enqueue(task.id)
+        dead_letter_queue.enqueue(task.id,task.priority)
 
     except Exception as e:
         print(f"Unexpected Error: {e}")
