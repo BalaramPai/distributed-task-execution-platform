@@ -15,3 +15,10 @@ class TaskPriority(StrEnum):
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
     CRITICAL = "CRITICAL"   #For future use.
+    
+class SchedulerStatus(StrEnum):
+    NEW = "NEW"
+    READY = "READY"
+    RUNNING = "RUNNING"
+    WAITING = "WAITING"
+    TERMINATED = "TERMINATED"

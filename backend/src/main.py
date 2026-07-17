@@ -4,10 +4,8 @@ from fastapi import FastAPI
 from src.routes.healthRoutes import router as health_router
 from src.routes.taskRoutes import router as tasks_router
 from src.routes.authRoutes import router as auth_router
+from src.workers.workerManager import start_workers
 
-from src.workers.taskWorker import worker
-
-import threading
 from contextlib import asynccontextmanager
 
 NUM_WORKERS = 3
@@ -16,9 +14,7 @@ NUM_WORKERS = 3
 @asynccontextmanager
 async def lifespan(app: FastAPI): 
     print("Starting Worker Threads.")  
-    for i in range(1,NUM_WORKERS+1):
-        worker_thread = threading.Thread(target=worker,daemon=True,name=f"Worker-{i}")
-        worker_thread.start()
+    start_workers(NUM_WORKERS)      # We start to worker threads here but hide the execution in the manager along with other functionalities necessary for scheduling.
     yield       # A yielding thread does not go into a sleeping or blocked state. It simply moves from the Running state back to the Runnable state, making it eligible to be scheduled again immediately
     
     
