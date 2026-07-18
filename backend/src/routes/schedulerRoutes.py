@@ -15,7 +15,10 @@
 # GET  /scheduler/aging
 
 from fastapi import APIRouter, Depends
-from src.controllers.schedulerController import get_scheduler_status_controller
+from src.controllers.schedulerController import (
+    get_scheduler_status_controller,
+    get_scheduler_tasks_controller
+    )
 
 router = APIRouter(tags=["Scheduler Flow"])
 
@@ -23,3 +26,8 @@ router = APIRouter(tags=["Scheduler Flow"])
 @router.get("/scheduler/status")
 def get_scheduler_status():
     return get_scheduler_status_controller()
+
+
+@router.get("/scheduler/tasks")
+def get_scheduler_tasks():
+    return get_scheduler_tasks_controller()

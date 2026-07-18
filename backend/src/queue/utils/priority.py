@@ -7,3 +7,9 @@ PRIORITY_MAP = {
     TaskPriority.MEDIUM: 2,
     TaskPriority.LOW: 3,
 }
+
+REVERSE_PRIORITY_MAP = {
+    1: TaskPriority.HIGH,
+    2: TaskPriority.MEDIUM,
+    3: TaskPriority.LOW,
+}

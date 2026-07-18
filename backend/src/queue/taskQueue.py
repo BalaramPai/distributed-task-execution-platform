@@ -1,7 +1,8 @@
+# src/queue/taskQueue.py
 import heapq    
 from threading import Lock
 
-from src.queue.utils.priority import PRIORITY_MAP
+from src.queue.utils.priority import PRIORITY_MAP,REVERSE_PRIORITY_MAP
 from src.schemas.enums import TaskPriority
 
 
@@ -41,3 +42,13 @@ class TaskQueue:
 
     def is_empty(self):
         return self.size() == 0
+    
+    def get_queue_snapshot(self):
+        task_list = []
+        with self.lock:
+            for priority, sequence, task_id in self.task_queue:
+                task_list.append({
+                                    "task_id": task_id,
+                                    "priority": REVERSE_PRIORITY_MAP[priority]
+                                })
+        return task_list
