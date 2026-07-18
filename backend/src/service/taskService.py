@@ -3,7 +3,14 @@
 from sqlalchemy.orm import Session
 
 from src.utilities.response import error_response
-from src.schemas.taskSchema import TaskCreateRequestSchema,TaskResponseSchema,TaskUpdateRequestSchema,TaskStatusUpdateRequestSchema
+from src.schemas.taskSchema import (
+    TaskCreateRequestSchema,
+    TaskResponseSchema,
+    TaskUpdateRequestSchema,
+    TaskStatusUpdateRequestSchema,
+    BulkTaskCreateRequestSchema,
+    BulkTaskResponseSchema
+    )
 from src.schemas.enums import TaskStatus
 from src.models.taskModel import Task
 from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task,update_task,get_task_for_worker
@@ -184,7 +191,18 @@ def update_status_service(db:Session,updated_task:TaskStatusUpdateRequestSchema,
             createdAt=task.created_at,
             retry_count=task.retry_count
             )
-    
+
+def create_bulk_tasks_service(db: Session,tasks: BulkTaskCreateRequestSchema,current_user: User):
+    created_tasks = []
+
+    for task in tasks.tasks:
+        created_task = create_task_service(db,task,current_user)
+        created_tasks.append(created_task)
+
+    return BulkTaskResponseSchema(
+        count=len(created_tasks),
+        tasks=created_tasks
+    )
     
 def execute_task(db:Session,id:int):
     

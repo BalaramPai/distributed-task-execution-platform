@@ -3,6 +3,7 @@
 from pydantic import BaseModel, Field
 from datetime import datetime,date
 from src.schemas.enums import TaskStatus, TaskPriority
+from typing import List
 
 
 class TaskCreateRequestSchema(BaseModel):
@@ -38,4 +39,11 @@ class TaskUpdateRequestSchema(BaseModel):
     
 class TaskStatusUpdateRequestSchema(BaseModel):
     status: TaskStatus
+ 
     
+class BulkTaskCreateRequestSchema(BaseModel):
+    tasks: List[TaskCreateRequestSchema]
+
+class BulkTaskResponseSchema(BaseModel):
+    count: int
+    tasks: List[TaskResponseSchema]

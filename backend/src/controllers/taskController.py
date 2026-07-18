@@ -8,8 +8,16 @@ from src.service.taskService import (
     get_task_service,
     delete_task_service,
     update_task_service,
-    update_status_service)
-from src.schemas.taskSchema import TaskCreateRequestSchema,TaskUpdateRequestSchema,TaskStatusUpdateRequestSchema
+    update_status_service,
+    create_bulk_tasks_service
+    )
+
+from src.schemas.taskSchema import (
+    TaskCreateRequestSchema,
+    TaskUpdateRequestSchema,
+    TaskStatusUpdateRequestSchema,
+    BulkTaskCreateRequestSchema
+    )
 from src.utilities.response import (
     success_response,
     error_response
@@ -141,5 +149,19 @@ def update_status_controller(db:Session,task:TaskStatusUpdateRequestSchema,id:in
             error = str(e)
         )
             
-        
-        
+def create_bulk_tasks_controller(db: Session,tasks: BulkTaskCreateRequestSchema,current_user: User):
+    try:
+        response = create_bulk_tasks_service(db,tasks,current_user)
+
+        return success_response(
+            message="Tasks created successfully.",
+            data=response,
+            status_code=201
+        )
+
+    except Exception as e:
+
+        return error_response(
+            message="Bulk task creation failed.",
+            error=str(e)
+        )

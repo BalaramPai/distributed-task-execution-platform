@@ -9,11 +9,16 @@ from src.controllers.taskController import (
     get_task_controller,
     delete_task_controller,
     update_task_controller,
-    update_status_controller)
+    update_status_controller,
+    create_bulk_tasks_controller
+    )
+
 from src.schemas.taskSchema import (
     TaskCreateRequestSchema,
     TaskUpdateRequestSchema,
-    TaskStatusUpdateRequestSchema)
+    TaskStatusUpdateRequestSchema,
+    BulkTaskCreateRequestSchema)
+
 from src.database.database import get_db
 
 from src.dependencies.auth import get_current_user
@@ -80,3 +85,11 @@ def update_status(
     db : Session = Depends(get_db)
 ):
     return update_status_controller(db,task,id,current_user)
+
+@router.post("/tasks/bulk")
+def create_bulk_tasks(
+    tasks: BulkTaskCreateRequestSchema,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return create_bulk_tasks_controller(db,tasks,current_user)
