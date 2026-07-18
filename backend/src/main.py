@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from src.routes.healthRoutes import router as health_router
 from src.routes.taskRoutes import router as tasks_router
 from src.routes.authRoutes import router as auth_router
+from src.routes.schedulerRoutes import router as scheduler_router
 from src.workers.workerManager import start_workers
 
 from contextlib import asynccontextmanager
@@ -24,3 +25,4 @@ app = FastAPI(title="Distributed Task Execution Platform",version="1.0.0",lifesp
 app.include_router(health_router)
 app.include_router(tasks_router)
 app.include_router(auth_router)
+app.include_router(scheduler_router)

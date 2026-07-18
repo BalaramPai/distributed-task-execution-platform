@@ -13,3 +13,13 @@
 
 # GET  /scheduler/starvation
 # GET  /scheduler/aging
+
+from fastapi import APIRouter, Depends
+from src.controllers.schedulerController import get_scheduler_status_controller
+
+router = APIRouter(tags=["Scheduler Flow"])
+
+
+@router.get("/scheduler/status")
+def get_scheduler_status():
+    return get_scheduler_status_controller()
