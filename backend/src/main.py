@@ -6,10 +6,9 @@ from src.routes.taskRoutes import router as tasks_router
 from src.routes.authRoutes import router as auth_router
 from src.routes.schedulerRoutes import router as scheduler_router
 from src.workers.workerManager import start_workers
+from src.constants.workerConstants import NUM_WORKERS
 
 from contextlib import asynccontextmanager
-
-NUM_WORKERS = 3
 
 # So we create a thread for the worker process so that the worker and FASTAPI share the same process but work on mutliple threads sharing the same resources.
 @asynccontextmanager

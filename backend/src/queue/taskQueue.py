@@ -1,11 +1,13 @@
 # src/queue/taskQueue.py
 import heapq    
 from threading import Lock
+from datetime import datetime
 
-from src.queue.utils.priority import PRIORITY_MAP,REVERSE_PRIORITY_MAP
+from src.queue.utils.priority import PRIORITY_MAP
 from src.schemas.enums import TaskPriority
 from src.queue.queueEntry import QueueEntry
 
+from src.constants.schedulerConstants import AGING_RULES, THRESHOLD, PROMOTE_TO
 
 class TaskQueue:
 
@@ -57,9 +59,45 @@ class TaskQueue:
     def get_queue_snapshot(self):
         task_list = []
         with self.lock:
-            for priority, _ , entry in self.task_queue:
+            for _, _ , entry in self.task_queue:
                 task_list.append({
                                     "task_id": entry.task_id,
-                                    "priority": REVERSE_PRIORITY_MAP[priority]
+                                    "priority": entry.effective_priority.value
                                 })
         return task_list
+    
+    def apply_aging(self):
+        """
+        Checks every queued task and promotes tasks that have
+        waited longer than the configured aging threshold.
+
+        After promotion, rebuilds the heap so the new priorities
+        are reflected in scheduling.
+        """
+        with self.lock:
+            priority_updated = False
+            
+            for _, _, entry in self.task_queue:
+                waiting_time = entry.get_waiting_time()
+                rule = AGING_RULES[entry.effective_priority]
+
+                if (
+                    rule[THRESHOLD] is not None
+                    and waiting_time >= rule[THRESHOLD]
+                ):
+                    entry.effective_priority = rule[PROMOTE_TO]
+                    entry.last_priority_update_at = datetime.utcnow()
+                    priority_updated = True
+
+            # Once we have got the new status we also have to update the tasks effective_piority in the heap, the below code does that.
+            if priority_updated:
+                self.task_queue = [
+                    (
+                        PRIORITY_MAP[entry.effective_priority],
+                        sequence,
+                        entry,
+                    )
+                    for _, sequence, entry in self.task_queue
+                ]
+
+                heapq.heapify(self.task_queue)

@@ -2,7 +2,6 @@
 
 from sqlalchemy.orm import Session
 
-from src.utilities.response import error_response
 from src.schemas.taskSchema import (
     TaskCreateRequestSchema,
     TaskResponseSchema,
@@ -20,8 +19,7 @@ from time import sleep
 
 
 from src.models.userModel import User
-
-MAX_RETRIES = 3
+from src.constants.taskConstants import MAX_RETRIES
 
 
 def create_task_service(

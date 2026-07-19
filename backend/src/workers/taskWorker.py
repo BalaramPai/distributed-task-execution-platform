@@ -12,6 +12,10 @@ def worker():
     db = SessionLocal()
     try:
         while True:
+            
+            # Before any task is processed by the worker we apply aging and to the tasks and update the heap tasks with their new priorities.
+            task_queue.apply_aging()
+            
             task_id = task_queue.dequeue()  # Used so while the task queue is empty it keeps refreshing.
             if task_id is None:         # Instead of is_empty as it can incurr Time-of-Check to Time-of-Use (TOCTOU) race condition.
                 sleep(1)
