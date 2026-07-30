@@ -18,7 +18,7 @@ from src.dao.dependencyDao import (
 
 
 
-# 1. 
+# 1. This function validates all sort of dependencies.
 def validate_dependencies(db: Session,
                           dependencies: list[int],
                           task_id: int = None):
@@ -54,7 +54,7 @@ def validate_dependencies(db: Session,
                 raise CircularDependencyError()
 
 
-# 2.        
+# 2. Verifies if the dependencies for a task are completed or not.
 def are_dependencies_completed(db:Session,dependencies: list[int]):
     
     for dependency_id in dependencies:
