@@ -70,3 +70,17 @@ def delete_task(db: Session,task: Task):
 def update_task(db:Session,task:Task):
     db.commit()
     db.refresh(task)
+    
+# To find if there is a task that exists for the particular dependency alloted to the task.    
+def dependency_exists(db: Session, dependency_id: int):
+
+    task = (
+        db.query(Task)
+        .where(Task.id == dependency_id)
+        .first()
+    )
+
+    if task is None:
+        return False
+
+    return True

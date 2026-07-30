@@ -12,14 +12,58 @@ from src.schemas.taskSchema import (
     )
 from src.schemas.enums import TaskStatus
 from src.models.taskModel import Task
-from src.dao.taskDao import create_task,get_all_tasks,get_task,delete_task,update_task,get_task_for_worker
+from src.dao.taskDao import ( 
+    create_task,get_all_tasks,
+    get_task,delete_task,
+    update_task,
+    get_task_for_worker,
+    dependency_exists
+    )
 from src.queue.queueManager import task_queue,dead_letter_queue
-from src.exceptions.taskExceptions import TransientTaskError,PermanentTaskError
+from src.exceptions.taskExceptions import (
+    TransientTaskError,
+    PermanentTaskError,
+    )
+from src.exceptions.dependencyExceptions import (
+    DuplicateDependencyError,
+    InvalidDependencyError,
+    DependencyNotFoundError,
+    SelfDependencyError
+)
+
 from time import sleep
 
 
 from src.models.userModel import User
 from src.constants.taskConstants import MAX_RETRIES
+
+# Helper functions.
+def validate_dependencies(db: Session,
+                          dependencies: list[int],
+                          task_id: int = None):
+    # Duplicate dependency validation.
+    if len(dependencies) != len(set(dependencies)):
+        raise DuplicateDependencyError(
+            "Duplicate dependency IDs are not allowed.")
+      
+
+    for dependency_id in dependencies:
+        
+        # Invalid dependency ID validation.
+        if dependency_id <= 0:
+            raise InvalidDependencyError(
+                "Dependency IDs must be greater than 0.")
+                
+        # Self dependency validation.
+        if task_id is not None and dependency_id == task_id:
+            raise SelfDependencyError(task_id)
+        
+        # Dependency exists validation.
+        if not dependency_exists(db,dependency_id):
+                    raise DependencyNotFoundError(dependency_id)
+            
+        
+#---------------------------------------------------------------------#   
 
 
 def create_task_service(
@@ -27,6 +71,7 @@ def create_task_service(
     task: TaskCreateRequestSchema,
     current_user: User
 ):
+    validate_dependencies(db,task.dependencies)   
 
     # Used in create as there is no exisitng row. 
     task_model = Task(
@@ -164,6 +209,7 @@ def update_task_service(db:Session,updated_task:TaskUpdateRequestSchema,id:int,c
         task.priority = updated_task.priority
     
     if updated_task.dependencies is not None:
+        validate_dependencies(db,updated_task.dependencies,id)
         task.dependencies = updated_task.dependencies
         
     
