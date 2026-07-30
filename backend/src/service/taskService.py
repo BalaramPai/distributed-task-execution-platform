@@ -13,11 +13,14 @@ from src.schemas.taskSchema import (
 from src.schemas.enums import TaskStatus
 from src.models.taskModel import Task
 from src.dao.taskDao import ( 
-    create_task,get_all_tasks,
-    get_task,delete_task,
+    create_task,
+    get_all_tasks,
+    get_task,
+    delete_task,
     update_task,
-    get_task_for_worker,
-    dependency_exists
+    get_task_for_worker,        # Simply fetches a task without need of extra params.
+    dependency_exists,
+    get_waiting_tasks
     )
 from src.queue.queueManager import task_queue,dead_letter_queue
 from src.exceptions.taskExceptions import (
@@ -62,7 +65,16 @@ def validate_dependencies(db: Session,
         if not dependency_exists(db,dependency_id):
                     raise DependencyNotFoundError(dependency_id)
             
+def are_dependencies_completed(db:Session,dependencies: list[int]):
+    
+    for dependency_id in dependencies:
+        task_to_check = get_task_for_worker(db,dependency_id)
         
+        if task_to_check.status != TaskStatus.COMPLETED:
+            return False            
+    return True
+        
+             
 #---------------------------------------------------------------------#   
 
 
@@ -296,6 +308,17 @@ def process_task(db: Session, task_id: int):
 
     try:
         execute_task(db, task_id)
+        
+        # Now we retrieve tasks that are in wait state.
+        wait_task_list = get_waiting_tasks(db)
+        
+        # Here we update each task whose dependencies have been completed.
+        for w_task in wait_task_list:
+            if are_dependencies_completed(db,w_task.dependencies):
+                w_task.status = TaskStatus.QUEUED
+                update_task(db,w_task)
+                task_queue.enqueue(w_task.id,w_task.priority)
+                
 
     except TransientTaskError as e:
         print(f"Transient Error: {e}")

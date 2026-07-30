@@ -3,6 +3,7 @@
 from sqlalchemy.orm import Session
 from src.models.taskModel import Task
 from src.models.userModel import User
+from src.schemas.enums import TaskStatus
 
 # To create a task and insert it into the database.
 def create_task(db:Session,task:Task):
@@ -56,8 +57,13 @@ def get_task(db:Session,id : int,owner_id: int):
 def get_task_for_worker(db:Session,id:int):
     return db.query(Task).where(Task.id == id).first()
 
-
-
+# To get all tasks that are in Waiting State.
+def get_waiting_tasks(db: Session):
+    return (
+        db.query(Task)
+        .filter(Task.status == TaskStatus.WAITING)
+        .all()
+    )
 
 def delete_task(db: Session,task: Task):
 
