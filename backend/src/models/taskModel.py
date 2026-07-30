@@ -7,7 +7,8 @@ from sqlalchemy import (
     Text,
     Date,
     DateTime,
-    ForeignKey
+    ForeignKey,
+    JSON
 )
 
 from sqlalchemy.orm import relationship
@@ -59,9 +60,15 @@ class Task(Base):
     nullable=False
     )
     
-    owner = relationship(
-    "User",
-    back_populates="tasks"
-    )
-    
     retry_count = Column(Integer, default=0)
+    
+    dependencies = Column(
+        JSON,
+        nullable=False,
+        default=list
+    )  
+    
+    owner = relationship(
+        "User",
+        back_populates="tasks"
+        )

@@ -13,6 +13,7 @@ class TaskCreateRequestSchema(BaseModel):
     location : str = Field(min_length=3,max_length=100)
     dueDate : date 
     priority : TaskPriority = TaskPriority.MEDIUM
+    dependencies : List[int] = Field(default_factory=list)  #This default_factory option creates a new list every time rather than sharing the same list over and over again.
     
     
 class TaskResponseSchema(BaseModel):
@@ -26,6 +27,7 @@ class TaskResponseSchema(BaseModel):
     priority : TaskPriority
     createdAt : datetime
     retry_count : int
+    dependencies : List[int]
     
     
 class TaskUpdateRequestSchema(BaseModel):
@@ -35,6 +37,7 @@ class TaskUpdateRequestSchema(BaseModel):
     location: str | None = Field(default=None,min_length=3,max_length=100)
     dueDate: date | None = None
     priority : TaskPriority | None = None
+    dependencies: List[int] | None = None
    
     
 class TaskStatusUpdateRequestSchema(BaseModel):

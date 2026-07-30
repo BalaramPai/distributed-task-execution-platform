@@ -37,12 +37,22 @@ def create_task_service(
         due_date=task.dueDate,
         owner_id=current_user.id,
         priority = task.priority,
+        dependencies = task.dependencies
     )
-
+    
+    # We set the intital status here itself to prevent 2 database writes.
+    if not task.dependencies:
+        task_model.status = TaskStatus.QUEUED
+    else:
+        task_model.status = TaskStatus.WAITING
+        
+    # The task gets to the database irresepective of the dependencies.
     saved_task = create_task(db,task_model)
     
-    task_queue.enqueue(saved_task.id,saved_task.priority)
- 
+    # If there are no dependencies in a task then it is enqueued.
+    if saved_task.status == TaskStatus.QUEUED:
+            task_queue.enqueue(saved_task.id,saved_task.priority)
+    
     return TaskResponseSchema(
         id=saved_task.id,
         title=saved_task.title,
@@ -53,7 +63,8 @@ def create_task_service(
         priority=saved_task.priority,
         status=saved_task.status,
         createdAt=saved_task.created_at,
-        retry_count=saved_task.retry_count
+        retry_count=saved_task.retry_count,
+        dependencies=saved_task.dependencies,
         )
     
 def get_all_tasks_service(db:Session,status:str,page:int,limit:int,search:str,sort:str,current_user: User):
@@ -75,7 +86,8 @@ def get_all_tasks_service(db:Session,status:str,page:int,limit:int,search:str,so
             priority=task.priority,
             status=task.status,
             createdAt=task.created_at,
-            retry_count=task.retry_count
+            retry_count=task.retry_count,
+            dependencies=task.dependencies,
             )
         )
 
@@ -99,7 +111,8 @@ def get_task_service( db:Session, id : int,current_user: User):
             priority=task.priority,
             status=task.status,
             createdAt=task.created_at,
-            retry_count=task.retry_count
+            retry_count=task.retry_count,
+            dependencies=task.dependencies,
             )
      
 def delete_task_service(db: Session,id: int,current_user: User):
@@ -121,7 +134,8 @@ def delete_task_service(db: Session,id: int,current_user: User):
         priority=task.priority,
         status=task.status,
         createdAt=task.created_at,
-        retry_count=task.retry_count
+        retry_count=task.retry_count,
+        dependencies=task.dependencies,
     )
     
 def update_task_service(db:Session,updated_task:TaskUpdateRequestSchema,id:int,current_user: User):
@@ -148,6 +162,9 @@ def update_task_service(db:Session,updated_task:TaskUpdateRequestSchema,id:int,c
         
     if updated_task.priority is not None:
         task.priority = updated_task.priority
+    
+    if updated_task.dependencies is not None:
+        task.dependencies = updated_task.dependencies
         
     
     update_task(db,task)
@@ -162,7 +179,8 @@ def update_task_service(db:Session,updated_task:TaskUpdateRequestSchema,id:int,c
             priority=task.priority,
             status=task.status,
             createdAt=task.created_at,
-            retry_count=task.retry_count
+            retry_count=task.retry_count,
+            dependencies=task.dependencies,
             )
     
 
@@ -187,7 +205,8 @@ def update_status_service(db:Session,updated_task:TaskStatusUpdateRequestSchema,
             priority=task.priority,
             status=task.status,
             createdAt=task.created_at,
-            retry_count=task.retry_count
+            retry_count=task.retry_count,
+            dependencies=task.dependencies,
             )
 
 def create_bulk_tasks_service(db: Session,tasks: BulkTaskCreateRequestSchema,current_user: User):

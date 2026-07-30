@@ -4,6 +4,8 @@ from enum import StrEnum
 
 
 class TaskStatus(StrEnum):
+    # This is written in order of execution.
+    WAITING = "WAITING"
     QUEUED = "QUEUED"
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
