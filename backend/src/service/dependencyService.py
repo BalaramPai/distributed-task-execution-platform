@@ -13,7 +13,15 @@ from src.exceptions.dependencyExceptions import (
 from src.dao.dependencyDao import (
     dependency_exists,
     get_dependencies,
-    get_task_by_id
+    get_task_by_id,
+    get_dependency_tasks
+)
+
+from src.schemas.dependencySchema import (
+    DependencyInfoSchema,
+    TaskDependenciesResponseSchema,
+    BlockedDependencySchema,
+    BlockedReasonResponseSchema
 )
 
 
@@ -87,3 +95,54 @@ def can_reach_task(
             return True
 
     return False  
+
+# 4.Get Dependency Details
+def get_task_dependencies_service(db: Session, task_id: int):
+
+    task = get_task_by_id(db, task_id)
+
+    dependency_tasks = get_dependency_tasks(db, task.dependencies)
+
+    dependencies = []
+
+    for dependency in dependency_tasks:
+        dependencies.append(
+            DependencyInfoSchema(
+                id=dependency.id,
+                title=dependency.title,
+                status=dependency.status
+            )
+        )
+
+    return TaskDependenciesResponseSchema(
+        task_id=task.id,
+        dependencies=dependencies
+    )
+    
+
+# 5. Get Blocked Reason
+def get_blocked_reason_service(db: Session, task_id: int):
+
+    task = get_task_by_id(db, task_id)
+
+    blocked_by = []
+
+    dependency_tasks = get_dependency_tasks(db, task.dependencies)
+
+    for dependency in dependency_tasks:
+
+        if dependency.status != TaskStatus.COMPLETED:
+
+            blocked_by.append(
+                BlockedDependencySchema(
+                    id=dependency.id,
+                    title=dependency.title,
+                    status=dependency.status
+                )
+            )
+
+    return BlockedReasonResponseSchema(
+        task_id=task.id,
+        status=task.status,
+        blocked_by=blocked_by
+    )

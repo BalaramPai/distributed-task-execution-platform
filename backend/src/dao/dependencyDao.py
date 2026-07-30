@@ -29,3 +29,21 @@ def get_dependencies(db: Session, task_id: int):
 # To retrieve a single task from the database for the worker.
 def get_task_by_id(db:Session,id:int):
     return db.query(Task).where(Task.id == id).first()
+
+
+# To retrieve all dependency task objects.
+def get_dependency_tasks(db: Session, dependency_ids: list[int]):
+    return (
+        db.query(Task)
+        .filter(Task.id.in_(dependency_ids))
+        .all()
+    )
+
+
+# To retrieve all tasks that depend on a particular task.
+def get_dependent_tasks(db: Session, task_id: int):
+    return (
+        db.query(Task)
+        .filter(Task.dependencies.contains([task_id]))
+        .all()
+    )
