@@ -90,3 +90,11 @@ def dependency_exists(db: Session, dependency_id: int):
         return False
 
     return True
+
+def get_dependencies(db: Session, task_id: int):
+    task = db.query(Task).filter(Task.id == task_id).first()
+
+    if task is None:
+        return []
+
+    return task.dependencies

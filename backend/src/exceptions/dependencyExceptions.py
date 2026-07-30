@@ -39,3 +39,7 @@ class SelfDependencyError(DependencyValidationError):
         super().__init__(
             f"Task with ID {task_id} cannot depend on itself."
         )
+        
+class CircularDependencyError(Exception):
+    def __init__(self):
+        super().__init__("Circular dependency detected.")
