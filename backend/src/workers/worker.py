@@ -57,7 +57,6 @@ class Worker:
     def is_idle(self):
         return self.current_task is None  # So basically if current task is none then its idle.
     
-    
         
     # Method 1 : Start Thread
     def start(self):
