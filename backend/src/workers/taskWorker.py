@@ -28,6 +28,8 @@ def worker(current_worker):
                 try:
                     print(f"{threading.current_thread().name} picked Task {task_id}")
                     process_task(db, task_id)
+                    current_worker.tasks_executed += 1
+                    
                 finally:                            # We used finally as even if the task fails, the scheduler metrics remain accurate.
                     current_worker.current_task = None  # Once processed it has the worker has no task.
                     decrement_running_tasks()             

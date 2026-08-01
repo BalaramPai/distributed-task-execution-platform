@@ -30,6 +30,9 @@ class Worker:
         self.created_at = datetime.utcnow()
         self.thread_id = None   # The OS doesnt allot any identifier to a thread unless it starts so when we create the object its none as the thread has still not started executing and thus the OS hasnt alloted anythign yet.
         self.current_task = None
+        self.tasks_executed = 0
+        self.successful_tasks = 0
+        self.failed_tasks = 0
         
         # Here the worker is creating the thread for itself.
         self.thread = Thread(

@@ -276,6 +276,8 @@ def process_task(db: Session, task_id: int):
                 w_task.status = TaskStatus.QUEUED
                 update_task(db,w_task)
                 task_queue.enqueue(w_task.id,w_task.priority)
+        
+        return TaskStatus.COMPLETED
                 
 
     except TransientTaskError as e:
@@ -284,7 +286,7 @@ def process_task(db: Session, task_id: int):
         task = get_task_for_worker(db, task_id)
 
         if task is None:
-            return
+            return TaskStatus.FAILED
 
         task.retry_count += 1
 
@@ -300,6 +302,8 @@ def process_task(db: Session, task_id: int):
             update_task(db, task)
 
             task_queue.enqueue(task.id,task.priority)
+            
+            return TaskStatus.QUEUED
 
         else:
 
@@ -312,6 +316,8 @@ def process_task(db: Session, task_id: int):
             update_task(db, task)
 
             dead_letter_queue.enqueue(task.id,task.priority)
+            
+            return TaskStatus.FAILED
 
     except PermanentTaskError as e:
         print(f"Permanent Error: {e}")
@@ -319,13 +325,15 @@ def process_task(db: Session, task_id: int):
         task = get_task_for_worker(db, task_id)
 
         if task is None:
-            return
+            return TaskStatus.FAILED
 
         task.status = TaskStatus.FAILED
 
         update_task(db, task)
 
         dead_letter_queue.enqueue(task.id,task.priority)
+        
+        return TaskStatus.FAILED
 
     except Exception as e:
         print(f"Unexpected Error: {e}")
@@ -333,11 +341,13 @@ def process_task(db: Session, task_id: int):
         task = get_task_for_worker(db, task_id)
 
         if task is None:
-            return
+            return TaskStatus.FAILED
 
         task.status = TaskStatus.FAILED
 
         update_task(db, task)
+        
+        return TaskStatus.FAILED
     
     
     

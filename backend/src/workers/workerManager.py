@@ -7,6 +7,7 @@ workers = []    # Without storing the thread objects, we can't answer questions 
                 # As if we dont then after execution of the start worker function all threads will be forgotten, so to keep a track we use the module level-list.
 running_tasks = 0
 running_tasks_lock = Lock()
+workers_list_lock = Lock()      # So when we access or use or edit the workers list there are no race condition as it is shared by multiple workers.
 
 
 def start_workers(NUM_WORKERS):
@@ -14,21 +15,25 @@ def start_workers(NUM_WORKERS):
     for i in range(1,NUM_WORKERS+1):
         worker_instance = Worker(i,worker)
         worker_instance.start()
-        workers.append(worker_instance)
+        with workers_list_lock:
+            workers.append(worker_instance)
             
             
 def get_worker_count():
-    return len(workers)
+    with workers_list_lock:
+        return len(workers)
 
 
 def get_all_workers():
-    return workers
+    with workers_list_lock:
+        return workers.copy()   # So the caller cannot accidentally modify the internal list.
 
 
 def get_worker(worker_id):
-    for worker in workers:
-        if worker.worker_id == worker_id:
-            return worker
+    with workers_list_lock:
+        for worker in workers:
+            if worker.worker_id == worker_id:
+                return worker
     return None
         
 
