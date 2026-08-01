@@ -1,6 +1,7 @@
 # src/workers/worker.py
 from threading import Thread
 from datetime import datetime
+from src.schemas.enums import WorkerState
 
 class Worker:
     """
@@ -33,6 +34,8 @@ class Worker:
         self.tasks_executed = 0
         self.successful_tasks = 0
         self.failed_tasks = 0
+        self.retried_tasks = 0
+        self.state = WorkerState.STARTING
         
         # Here the worker is creating the thread for itself.
         self.thread = Thread(
@@ -58,13 +61,14 @@ class Worker:
     
     @property
     def is_idle(self):
-        return self.current_task is None  # So basically if current task is none then its idle.
+        return self.state == WorkerState.IDLE  
     
         
     # Method 1 : Start Thread
     def start(self):
         self.thread.start()
         self.thread_id = self.thread.ident # Thread-id is owned by the Worker.
+        self.state = WorkerState.IDLE # After creation untill it processes its in idle.
         
     # Method 2: Check Thread status.
     def is_alive(self):
@@ -76,6 +80,12 @@ class Worker:
             "Worker("
             f"id={self.worker_id}, "
             f"name={self.name}, "           # Python automcatically concats strings.
-            f"alive={self.is_alive()}"
+            f"alive={self.is_alive()}, "
+            f"state={self.state}, "
+            f"current_task={self.current_task}, "
+            f"tasks_executed={self.tasks_executed}, "
+            f"successful_tasks={self.successful_tasks}, "
+            f"failed_tasks={self.failed_tasks}, "
+            f"retried_tasks={self.retried_tasks}"
             ")"
         ) 

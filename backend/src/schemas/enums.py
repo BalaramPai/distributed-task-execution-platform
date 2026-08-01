@@ -24,3 +24,10 @@ class SchedulerStatus(StrEnum):
     RUNNING = "RUNNING"
     WAITING = "WAITING"
     TERMINATED = "TERMINATED"
+    
+class WorkerState(StrEnum):
+    STARTING = "STARTING"
+    IDLE = "IDLE"
+    BUSY = "BUSY"
+    STOPPING = "STOPPING"
+    STOPPED = "STOPPED"

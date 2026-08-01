@@ -2,7 +2,14 @@
 from src.queue.queueManager import task_queue
 from src.database.database import SessionLocal
 from src.service.taskService import process_task
-from src.workers.workerManager import increment_running_tasks,decrement_running_tasks
+from src.workers.workerManager import (
+    increment_running_tasks,
+    decrement_running_tasks
+)
+from src.schemas.enums import (
+    TaskStatus,
+    WorkerState
+)
 
 import threading
 from time import sleep
@@ -27,11 +34,30 @@ def worker(current_worker):
                 current_worker.current_task = task_id  # The worker has picked this task.
                 try:
                     print(f"{threading.current_thread().name} picked Task {task_id}")
-                    process_task(db, task_id)
+                    
+                    # We set the status of the worker as we are going to process.
+                    current_worker.state = WorkerState.BUSY
+                    
+                    # So the process_task function executes and returns the status of the processed task.
+                    status = process_task(db, task_id)
+                    
                     current_worker.tasks_executed += 1
                     
-                finally:                            # We used finally as even if the task fails, the scheduler metrics remain accurate.
+                    if status == TaskStatus.COMPLETED:
+                        current_worker.successful_tasks += 1
+                        
+                    elif status == TaskStatus.FAILED:
+                        current_worker.failed_tasks += 1
+                        
+                    elif status == TaskStatus.QUEUED:
+                        current_worker.retried_tasks += 1
+                    
+                    else:
+                        raise ValueError(f"Unexpected task status: {status}")
+                    
+                finally:                            # We used finally as it always exectues ,even if the task fails, the scheduler metrics remain accurate.
                     current_worker.current_task = None  # Once processed it has the worker has no task.
+                    current_worker.state = WorkerState.IDLE  # The task is completed and the worker is idle again.
                     decrement_running_tasks()             
     finally:
         db.close()
