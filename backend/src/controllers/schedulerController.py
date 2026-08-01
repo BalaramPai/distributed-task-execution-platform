@@ -2,7 +2,9 @@
 
 from src.service.schedulerService import (
     get_scheduler_status_service,
-    get_scheduler_tasks_service
+    get_scheduler_tasks_service,
+    get_scheduler_worker_service,
+    get_scheduler_all_workers_service
     )
 from src.utilities.response import success_response,error_response
 
@@ -39,4 +41,47 @@ def get_scheduler_tasks_controller():
         return error_response(
             message = "Failed to retrieve the tasks.",
             error = str(e)
+        )
+        
+
+def get_scheduler_worker_controller(worker_id: int):
+    try:
+        scheduler_response = get_scheduler_worker_service(worker_id)
+
+        if scheduler_response is None:
+            return error_response(
+                message="Worker not found.",
+                error=f"No worker exists with ID {worker_id}."
+            )
+
+        return success_response(
+            message="Scheduler worker retrieved successfully.",
+            data=scheduler_response
+        )
+
+    except Exception as e:
+        return error_response(
+            message="Failed to retrieve the worker.",
+            error=str(e)
+        )
+        
+def get_scheduler_all_workers_controller():
+    try:
+        scheduler_response = get_scheduler_all_workers_service()
+
+        if len(scheduler_response.workers) == 0:
+            return success_response(
+                message="There are no workers at the moment to retrieve.",
+                data=scheduler_response
+            )
+
+        return success_response(
+            message="Scheduler workers retrieved successfully.",
+            data=scheduler_response
+        )
+
+    except Exception as e:
+        return error_response(
+            message="Failed to retrieve the workers.",
+            error=str(e)
         )

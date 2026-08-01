@@ -2,6 +2,7 @@
 
 from threading import Lock
 from src.workers.worker import Worker
+from src.schemas.enums import WorkerState
 
 workers = []    # Without storing the thread objects, we can't answer questions like how many workers are there, or if any worker is alive etc.
                 # As if we dont then after execution of the start worker function all threads will be forgotten, so to keep a track we use the module level-list.
@@ -35,6 +36,45 @@ def get_worker(worker_id):
             if worker.worker_id == worker_id:
                 return worker
     return None
+
+def get_worker_count_by_state(state: WorkerState):
+    with workers_list_lock:
+        count = 0
+        for worker in workers:
+            if worker.state == state:
+                count += 1
+        return count
+
+
+# These are fir the scheduler stats as it will give stats of all workers aggregated together.
+def get_total_successful_tasks():
+    with workers_list_lock:
+        total = 0
+
+        for worker in workers:
+            total += worker.successful_tasks
+
+        return total
+
+
+def get_total_failed_tasks():
+    with workers_list_lock:
+        total = 0
+
+        for worker in workers:
+            total += worker.failed_tasks
+
+        return total
+
+
+def get_total_retried_tasks():
+    with workers_list_lock:
+        total = 0
+
+        for worker in workers:
+            total += worker.retried_tasks
+
+        return total
         
 
 def increment_running_tasks():

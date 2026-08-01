@@ -3,6 +3,7 @@
 # GET  /scheduler/status
 # GET  /scheduler/tasks
 # GET  /scheduler/workers
+# GET  /scheduler/workers/{id}
 # GET  /scheduler/metrics
 
 # POST /scheduler/pause
@@ -14,10 +15,12 @@
 # GET  /scheduler/starvation
 # GET  /scheduler/aging
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from src.controllers.schedulerController import (
     get_scheduler_status_controller,
-    get_scheduler_tasks_controller
+    get_scheduler_tasks_controller,
+    get_scheduler_worker_controller,
+    get_scheduler_all_workers_controller,
     )
 
 router = APIRouter(tags=["Scheduler Flow"])
@@ -31,3 +34,13 @@ def get_scheduler_status():
 @router.get("/scheduler/tasks")
 def get_scheduler_tasks():
     return get_scheduler_tasks_controller()
+
+
+@router.get("/scheduler/workers")
+def get_scheduler_worker_list():
+    return get_scheduler_all_workers_controller()
+
+
+@router.get("/scheduler/workers/{worker_id}")
+def get_scheduler_worker(worker_id: int):
+    return get_scheduler_worker_controller(worker_id)

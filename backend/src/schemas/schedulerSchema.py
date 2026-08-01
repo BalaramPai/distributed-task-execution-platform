@@ -1,7 +1,9 @@
 # src/schemas/schedulerSchema.py
 from pydantic import BaseModel, Field
-from datetime import time
-from src.schemas.enums import TaskPriority
+from src.schemas.enums import (
+    TaskPriority,
+    WorkerState
+)
 from typing import List
 
 
@@ -10,9 +12,13 @@ class SchedulerStatusResponseSchema(BaseModel):
     dead_letter_queue_size : int
     worker_count : int
     running_tasks : int
-    # idle_workers : int
-    # completed_tasks : int
-    # failed_tasks : int
+    
+    idle_workers : int
+    busy_workers : int
+    
+    completed_tasks : int
+    failed_tasks : int
+    retried_tasks : int
     # uptime : time
     # scheduler_state : SchedulerStatus
     
@@ -24,3 +30,19 @@ class SchedulerTaskSchema(BaseModel):
 # Schema to convert the above schemas into a list.
 class SchedulerTasksResponseSchema(BaseModel):
     tasks: List[SchedulerTaskSchema]
+    
+# Schema for a single Worker. 
+class SchedulerWorkerSchema(BaseModel):
+    worker_id : int
+    name : str
+    is_alive : bool
+    state : WorkerState
+    current_task : int | None
+    tasks_executed : int
+    successful_tasks : int
+    failed_tasks : int
+    retried_tasks : int 
+
+# Schema for list of workers.
+class SchedulerWorkersResponseSchema(BaseModel):
+    workers: List[SchedulerWorkerSchema]
