@@ -29,11 +29,14 @@ class Worker:
         # Meta data of the Thread.
         self.created_at = datetime.utcnow()
         self.thread_id = None   # The OS doesnt allot any identifier to a thread unless it starts so when we create the object its none as the thread has still not started executing and thus the OS hasnt alloted anythign yet.
-        
+        self.current_task = None
         
         # Here the worker is creating the thread for itself.
         self.thread = Thread(
             target = target,
+            # Note : It has to be self, as args takes a tuple and just self will be element.
+            args=(self,),  # Now the thread automatically passes its owning Worker object into the function.
+            ## So basically the WORKER OBJ starts a thread and then pushes itself inside the thread via the worker fucntion.
             daemon=True,   # Means its a background thread that terminates when main program finishes executing and thus dont block the program from exiting.
             name=f"Worker-{worker_id}",
         )
@@ -50,6 +53,10 @@ class Worker:
     def name(self):
         return self.thread.name
     
+    @property
+    def is_idle(self):
+        return self.current_task is None  # So basically if current task is none then its idle.
+    
     
         
     # Method 1 : Start Thread
@@ -60,4 +67,13 @@ class Worker:
     # Method 2: Check Thread status.
     def is_alive(self):
         return self.thread.is_alive()
-        
+    
+    # Method 3: To print the worker object.(For debugging and logging[developers])
+    def __repr__(self):     # stands for Representation, if someone wants to represent this object as text.
+        return(
+            "Worker("
+            f"id={self.worker_id}, "
+            f"name={self.name}, "           # Python automcatically concats strings.
+            f"alive={self.is_alive()}"
+            ")"
+        ) 

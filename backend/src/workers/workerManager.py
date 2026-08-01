@@ -21,6 +21,17 @@ def get_worker_count():
     return len(workers)
 
 
+def get_all_workers():
+    return workers
+
+
+def get_worker(worker_id):
+    for worker in workers:
+        if worker.worker_id == worker_id:
+            return worker
+    return None
+        
+
 def increment_running_tasks():
     global running_tasks   # Since we are modifying the module-level variable, Python needs to be explicitly told not to create a new local variable.
 

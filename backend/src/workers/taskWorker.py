@@ -8,7 +8,8 @@ import threading
 from time import sleep
 
 
-def worker():   
+# We are passing the worker object in worker so we can get the metadata and details of the current worker or the worker that is working.
+def worker(current_worker):   
     db = SessionLocal()
     try:
         while True:
@@ -23,10 +24,12 @@ def worker():
             
             else:
                 increment_running_tasks()
+                current_worker.current_task = task_id  # The worker has picked this task.
                 try:
                     print(f"{threading.current_thread().name} picked Task {task_id}")
                     process_task(db, task_id)
                 finally:                            # We used finally as even if the task fails, the scheduler metrics remain accurate.
+                    current_worker.current_task = None  # Once processed it has the worker has no task.
                     decrement_running_tasks()             
     finally:
         db.close()
@@ -38,4 +41,3 @@ def worker():
         
             
     
-          
