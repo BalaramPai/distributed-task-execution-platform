@@ -1,5 +1,6 @@
 # src/workers/worker.py
 from threading import Thread
+from datetime import datetime
 
 class Worker:
     """
@@ -25,11 +26,16 @@ class Worker:
         # This is the worker id.
         self.worker_id = worker_id
         
+        # Meta data of the Thread.
+        self.created_at = datetime.utcnow()
+        self.thread_id = None   # The OS doesnt allot any identifier to a thread unless it starts so when we create the object its none as the thread has still not started executing and thus the OS hasnt alloted anythign yet.
+        
+        
         # Here the worker is creating the thread for itself.
         self.thread = Thread(
             target = target,
             daemon=True,   # Means its a background thread that terminates when main program finishes executing and thus dont block the program from exiting.
-            name=f"Worker-{worker_id}"
+            name=f"Worker-{worker_id}",
         )
 
     
@@ -49,6 +55,7 @@ class Worker:
     # Method 1 : Start Thread
     def start(self):
         self.thread.start()
+        self.thread_id = self.thread.ident # Thread-id is owned by the Worker.
         
     # Method 2: Check Thread status.
     def is_alive(self):
