@@ -64,6 +64,22 @@ def get_waiting_tasks(db: Session):
         .filter(Task.status == TaskStatus.WAITING)
         .all()
     )
+    
+# To get all tasks that are in Queued State.
+def get_queued_tasks(db: Session):
+    return (
+        db.query(Task)
+        .filter(Task.status == TaskStatus.QUEUED)
+        .all()
+    )
+
+# To get all tasks that were in progress when the application stopped.
+def get_in_progress_tasks(db: Session):
+    return (
+        db.query(Task)
+        .filter(Task.status == TaskStatus.IN_PROGRESS)
+        .all()
+    )
 
 def delete_task(db: Session,task: Task):
 

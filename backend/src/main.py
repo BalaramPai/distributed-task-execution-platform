@@ -10,6 +10,7 @@ from src.workers.workerManager import (
     start_workers,
     shutdown_workers
 )
+from src.service.recoveryService import recover_tasks
 from src.constants.workerConstants import NUM_WORKERS
 
 from contextlib import asynccontextmanager
@@ -17,6 +18,11 @@ from contextlib import asynccontextmanager
 # So we create a thread for the worker process so that the worker and FASTAPI share the same process but work on mutliple threads sharing the same resources.
 @asynccontextmanager
 async def lifespan(app: FastAPI): 
+    
+    # Recover unfinished tasks and rebuild the runtime heap before workers begin consuming tasks.
+    recover_tasks()
+    
+    # Start the worker threads.
     print("Starting Worker Threads.")  
     start_workers(NUM_WORKERS)      # We start to worker threads here but hide the execution in the manager along with other functionalities necessary for scheduling.
     
