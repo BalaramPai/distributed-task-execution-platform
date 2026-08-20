@@ -1,5 +1,5 @@
 # src/workers/worker.py
-from threading import Thread
+from threading import Thread, Event
 from datetime import datetime
 from src.schemas.enums import WorkerState
 
@@ -36,6 +36,7 @@ class Worker:
         self.failed_tasks = 0
         self.retried_tasks = 0
         self.state = WorkerState.STARTING
+        self.shutdown_event = Event() # Creates a thread-safe signal that this worker can use, to detect when a shutdown has been requested.
         
         # Here the worker is creating the thread for itself.
         self.thread = Thread(
@@ -69,7 +70,19 @@ class Worker:
         self.thread.start()
         self.thread_id = self.thread.ident # Thread-id is owned by the Worker.
         self.state = WorkerState.IDLE # After creation untill it processes its in idle.
+    
+    def stop(self):
+        print(f"{self.name} shutdown requested.")
+        self.state = WorkerState.STOPPING  # It means we have initiated a shutdown request and the worker has to stop after finishing the cuurent task.
+        self.shutdown_event.set()       # Changes it from FALSE -> TRUE (Which means a shutdown has been intitiated.)
+    
+    def join(self):
+        self.thread.join()  # wait until it has actually finished shutting down.
+        print(f"{self.name} stopped.")
         
+    # So stop is requesting to stop
+    # join is waiting for the thread to stop.
+    
     # Method 2: Check Thread status.
     def is_alive(self):
         return self.thread.is_alive()

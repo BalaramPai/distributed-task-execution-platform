@@ -19,7 +19,7 @@ from time import sleep
 def worker(current_worker):   
     db = SessionLocal()
     try:
-        while True:
+        while not current_worker.shutdown_event.is_set():  # If the shutdown_event is False as in no shutdown that means the worker can perform its designated task.
             
             # Before any task is processed by the worker we apply aging and to the tasks and update the heap tasks with their new priorities.
             task_queue.apply_aging()
@@ -57,9 +57,13 @@ def worker(current_worker):
                     
                 finally:                            # We used finally as it always exectues ,even if the task fails, the scheduler metrics remain accurate.
                     current_worker.current_task = None  # Once processed it has the worker has no task.
-                    current_worker.state = WorkerState.IDLE  # The task is completed and the worker is idle again.
+                    
+                    if not current_worker.shutdown_event.is_set():  # We want to check if there has been any shutdown that has been intiated , if it hasnt then the worker is idle and waiting for another task to be assigned.
+                        current_worker.state = WorkerState.IDLE  # The task is completed and the worker is idle again.
+                        
                     decrement_running_tasks()             
     finally:
+        current_worker.state = WorkerState.STOPPED  # If the shutdown has been initiated.
         db.close()
         
         

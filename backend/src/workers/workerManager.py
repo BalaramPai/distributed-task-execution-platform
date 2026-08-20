@@ -18,6 +18,19 @@ def start_workers(NUM_WORKERS):
         worker_instance.start()
         with workers_list_lock:
             workers.append(worker_instance)
+
+def shutdown_workers():
+    # First request shutdown for every worker.
+    # We do this for all workers before waiting so that all workers can finish their current tasks and shut down concurrently.
+    for worker in get_all_workers():
+        worker.stop()
+
+    # After requesting shutdown from every worker, wait for each worker to completely finish its thread before continuing.
+    # join() blocks until that worker's thread has exited.
+    for worker in get_all_workers():
+        worker.join()
+    
+    print("All workers stopped.")
             
             
 def get_worker_count():
@@ -46,7 +59,7 @@ def get_worker_count_by_state(state: WorkerState):
         return count
 
 
-# These are fir the scheduler stats as it will give stats of all workers aggregated together.
+# These are for the scheduler stats as it will give stats of all workers aggregated together.
 def get_total_successful_tasks():
     with workers_list_lock:
         total = 0
