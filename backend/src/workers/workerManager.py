@@ -7,17 +7,29 @@ from src.schemas.enums import WorkerState
 workers = []    # Without storing the thread objects, we can't answer questions like how many workers are there, or if any worker is alive etc.
                 # As if we dont then after execution of the start worker function all threads will be forgotten, so to keep a track we use the module level-list.
 running_tasks = 0
+next_worker_id = 1
+
 running_tasks_lock = Lock()
 workers_list_lock = Lock()      # So when we access or use or edit the workers list there are no race condition as it is shared by multiple workers.
+worker_id_lock = Lock() # So when dynamic scaling happens the next_worker_id which is shared doesnt become redundant.
 
+
+def create_worker():
+    global next_worker_id
+    from src.workers.taskWorker import worker  # If imported on Top there will be a circular import between taskWorker and workerManager.  
+    
+    with worker_id_lock:
+        worker_id = next_worker_id
+        next_worker_id += 1
+        
+    worker_instance = Worker(worker_id,worker)
+    worker_instance.start()
+    with workers_list_lock:
+        workers.append(worker_instance)
 
 def start_workers(NUM_WORKERS):
-    from src.workers.taskWorker import worker   # If imported on Top there will be a circular import between taskWorker and workerManager.
-    for i in range(1,NUM_WORKERS+1):
-        worker_instance = Worker(i,worker)
-        worker_instance.start()
-        with workers_list_lock:
-            workers.append(worker_instance)
+    for _ in range(1,NUM_WORKERS+1):
+        create_worker()
 
 def shutdown_workers():
     # First request shutdown for every worker.
@@ -31,8 +43,64 @@ def shutdown_workers():
         worker.join()
     
     print("All workers stopped.")
-            
-            
+
+def scale_up_workers(count):
+    for _ in range(count):
+        create_worker()
+    return True
+        
+def scale_down_workers(count):
+    if count <= get_worker_count():
+        available_idle_workers = get_worker_count_by_state(WorkerState.IDLE)
+        if count <= available_idle_workers:
+            for _ in range(count):
+                all_workers = get_all_workers()
+                for worker in all_workers:
+                    if worker.state == WorkerState.IDLE:
+                        worker.stop()
+                        worker.join()
+                        with workers_list_lock:
+                            workers.remove(worker)
+                        break
+        else:
+            total = 0
+            while total < count:
+                available_idle_workers = get_worker_count_by_state(WorkerState.IDLE)
+                all_workers = get_all_workers()
+                if available_idle_workers:
+                    for worker in all_workers:
+                        if worker.state == WorkerState.IDLE:
+                            worker.stop()
+                            worker.join()
+                            total += 1
+                            with workers_list_lock:
+                                workers.remove(worker)
+                            break
+                else:        
+                    for worker in all_workers:
+                        if worker.state == WorkerState.BUSY:
+                            worker.stop()
+                            worker.join()
+                            total += 1
+                            with workers_list_lock:
+                                workers.remove(worker)
+                            break
+        return True
+    return False
+
+
+def scale_workers(count):
+    total_workers = get_worker_count()
+
+    if count > total_workers:
+        return scale_up_workers(count - total_workers)
+
+    elif count < total_workers:
+        return scale_down_workers(total_workers - count)
+
+    return True
+
+         
 def get_worker_count():
     with workers_list_lock:
         return len(workers)

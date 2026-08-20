@@ -21,7 +21,9 @@ from src.controllers.schedulerController import (
     get_scheduler_tasks_controller,
     get_scheduler_worker_controller,
     get_scheduler_all_workers_controller,
+    scale_scheduler_workers_controller
     )
+from src.schemas.schedulerSchema import SchedulerScaleRequestSchema
 
 router = APIRouter(tags=["Scheduler Flow"])
 
@@ -44,3 +46,7 @@ def get_scheduler_worker_list():
 @router.get("/scheduler/workers/{worker_id}")
 def get_scheduler_worker(worker_id: int):
     return get_scheduler_worker_controller(worker_id)
+
+@router.post("/scheduler/workers/scale")
+def scale_workers(request:SchedulerScaleRequestSchema):
+    return scale_scheduler_workers_controller(request.count)

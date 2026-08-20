@@ -49,3 +49,14 @@ class SchedulerWorkerSchema(BaseModel):
 # Schema for list of workers.
 class SchedulerWorkersResponseSchema(BaseModel):
     workers: List[SchedulerWorkerSchema]
+
+# Schema for scaling workers.
+class SchedulerScaleRequestSchema(BaseModel):
+    count: int = Field(..., ge=1)
+    
+class SchedulerScaleResponseSchema(BaseModel):
+    previous_worker_count: int
+    requested_worker_count: int
+    current_worker_count: int
+    scaling_action: str
+    workers_changed: int

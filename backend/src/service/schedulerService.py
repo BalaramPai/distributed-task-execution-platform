@@ -12,13 +12,15 @@ from src.workers.workerManager import (
     get_worker_count_by_state,
     get_total_failed_tasks,
     get_total_retried_tasks,
-    get_total_successful_tasks
+    get_total_successful_tasks,
+    scale_workers
 )
 from src.schemas.schedulerSchema import (
     SchedulerStatusResponseSchema,   # Response schema for schedule status.
     SchedulerTasksResponseSchema,
     SchedulerWorkerSchema,
-    SchedulerWorkersResponseSchema
+    SchedulerWorkersResponseSchema,
+    SchedulerScaleResponseSchema
 )
 from src.schemas.enums import WorkerState
 
@@ -86,3 +88,30 @@ def get_scheduler_all_workers_service():
         )
 
     return SchedulerWorkersResponseSchema(workers=worker_list)
+
+def scale_scheduler_workers_service(count: int):
+
+    previous_worker_count = get_worker_count()
+
+    scale_result = scale_workers(count)
+
+    current_worker_count = get_worker_count()
+
+    if current_worker_count > previous_worker_count:
+        scaling_action = "SCALE_UP"
+    elif current_worker_count < previous_worker_count:
+        scaling_action = "SCALE_DOWN"
+    else:
+        scaling_action = "NO_CHANGE"
+
+    workers_changed = abs(
+        current_worker_count - previous_worker_count
+    )
+
+    return SchedulerScaleResponseSchema(
+        previous_worker_count=previous_worker_count,
+        requested_worker_count=count,
+        current_worker_count=current_worker_count,
+        scaling_action=scaling_action,
+        workers_changed=workers_changed
+    )
