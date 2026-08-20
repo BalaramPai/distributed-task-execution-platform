@@ -1,5 +1,6 @@
 # src/schemas/schedulerSchema.py
 from pydantic import BaseModel, Field
+from datetime import datetime
 from src.schemas.enums import (
     TaskPriority,
     WorkerState
@@ -41,7 +42,9 @@ class SchedulerWorkerSchema(BaseModel):
     tasks_executed : int
     successful_tasks : int
     failed_tasks : int
-    retried_tasks : int 
+    retried_tasks : int
+    last_heartbeat: datetime
+    is_healthy: bool 
 
 # Schema for list of workers.
 class SchedulerWorkersResponseSchema(BaseModel):

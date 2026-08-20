@@ -60,6 +60,8 @@ def get_scheduler_worker_service(worker_id:int):
         successful_tasks=worker.successful_tasks,
         failed_tasks=worker.failed_tasks,
         retried_tasks=worker.retried_tasks,
+        is_healthy=worker.is_healthy,
+        last_heartbeat=worker.last_heartbeat,
     )
     
 def get_scheduler_all_workers_service():
@@ -78,6 +80,8 @@ def get_scheduler_all_workers_service():
                 successful_tasks=worker.successful_tasks,
                 failed_tasks=worker.failed_tasks,
                 retried_tasks=worker.retried_tasks,
+                is_healthy=worker.is_healthy,
+                last_heartbeat=worker.last_heartbeat,
             )
         )
 

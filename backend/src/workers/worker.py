@@ -1,7 +1,12 @@
 # src/workers/worker.py
 from threading import Thread, Event
+from time import sleep
 from datetime import datetime
 from src.schemas.enums import WorkerState
+from src.constants.workerConstants import (
+    HEARTBEAT_INTERVAL,
+    HEARTBEAT_TIMEOUT
+)
 
 class Worker:
     """
@@ -36,6 +41,7 @@ class Worker:
         self.failed_tasks = 0
         self.retried_tasks = 0
         self.state = WorkerState.STARTING
+        self.last_heartbeat = datetime.utcnow()
         self.shutdown_event = Event() # Creates a thread-safe signal that this worker can use, to detect when a shutdown has been requested.
         
         # Here the worker is creating the thread for itself.
@@ -47,6 +53,21 @@ class Worker:
             daemon=True,   # Means its a background thread that terminates when main program finishes executing and thus dont block the program from exiting.
             name=f"Worker-{worker_id}",
         )
+        
+        # Here the worker is creating the heatbeat thread for itself.
+        self.heartbeat_thread = Thread(
+            target=self._heartbeat_loop,
+            daemon=True,
+            name=f"Worker-{worker_id}-Heartbeat",
+        )
+        
+        # Worker-1
+        # │
+        # ├── Worker-1
+        # │     └── executes tasks
+        # │
+        # └── Worker-1-Heartbeat
+        #     └── updates heartbeat every 2 seconds
 
     
     @property
@@ -64,12 +85,23 @@ class Worker:
     def is_idle(self):
         return self.state == WorkerState.IDLE  
     
+    @property
+    def is_healthy(self):
+        # A worker is healthy when its latest heartbeat is within the allowed timeout.
+        elapsed_time = datetime.utcnow() - self.last_heartbeat
+        return elapsed_time.total_seconds() <= HEARTBEAT_TIMEOUT    # Returns true if heartbeat in the designated time interval.
+    
         
-    # Method 1 : Start Thread
+    # Methods and functions for a worker.
     def start(self):
         self.thread.start()
+        self.heartbeat_thread.start()
+        
         self.thread_id = self.thread.ident # Thread-id is owned by the Worker.
         self.state = WorkerState.IDLE # After creation untill it processes its in idle.
+    
+    def update_heartbeat(self):
+            self.last_heartbeat = datetime.utcnow() # Updates the timestamp to show that this worker is still alive and responsive.
     
     def stop(self):
         print(f"{self.name} shutdown requested.")
@@ -78,16 +110,20 @@ class Worker:
     
     def join(self):
         self.thread.join()  # wait until it has actually finished shutting down.
+        self.heartbeat_thread.join() # wait untill the heartbeat thread finishes.
         print(f"{self.name} stopped.")
         
     # So stop is requesting to stop
-    # join is waiting for the thread to stop.
+    # join is waiting for the thread to stop.    
     
-    # Method 2: Check Thread status.
     def is_alive(self):
         return self.thread.is_alive()
     
-    # Method 3: To print the worker object.(For debugging and logging[developers])
+    def _heartbeat_loop(self):
+        while not self.shutdown_event.is_set():
+            self.update_heartbeat()
+            sleep(HEARTBEAT_INTERVAL)
+    
     def __repr__(self):     # stands for Representation, if someone wants to represent this object as text.
         return(
             "Worker("
