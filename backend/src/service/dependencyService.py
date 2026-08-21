@@ -73,6 +73,7 @@ def are_dependencies_completed(db:Session,dependencies: list[int]):
     return True
 
 
+# DAG
 # 3. This function checks if the current task and the dependency form a cycle by reverse method so it check if we reach the dependency from task and then goes above to validation logic.
 def can_reach_task(
     db: Session,
